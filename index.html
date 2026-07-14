@@ -4,254 +4,489 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Monitor TV - Slog KORPASGAT</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    
     <style>
-        /* THEME: DARK COMMAND CENTER */
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0d0d0d; color: #e0e0e0; margin: 0; padding: 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px 20px; border-radius: 8px; border-bottom: 3px solid #ff4d4d; margin-bottom: 15px; }
-        .header h2 { margin: 0; color: #ff4d4d; text-transform: uppercase; font-size: 20px; letter-spacing: 1px; }
-        #clock { font-size: 16px; font-weight: bold; color: #ff4d4d; }
-        .btn-gear { background: #262626; color: #fff; border: 1px solid #404040; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
         
-        .panel-monitor { flex: 1; background: #141414; padding: 15px; border-radius: 8px; border: 1px solid #262626; display: flex; flex-direction: column; min-height: 0; }
-        .table-container { flex: 1; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border: 1px solid #262626; font-size: 13px; }
-        th { background-color: #ff4d4d; color: white; position: sticky; top: 0; z-index: 5; }
-        tr:nth-child(even) { background-color: #1a1a1a; }
-        
-        .btn-view { background: #00adb5; color: white; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .btn-edit { background: #f39c12; color: #000; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 4px; }
-
-        /* MODAL / POPUP */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; display: none; justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a1a; border: 2px solid #ff4d4d; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; width: 500px; max-height: 90vh; }
-        .wide-modal { width: 95% !important; height: 90% !important; }
-        .modal-header { background: #262626; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .modal-body { flex: 1; padding: 15px; overflow: auto; }
-
-        /* FORM */
-        .form-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 5px; font-size: 12px; color: #aaa; }
-        input, textarea { width: 100%; padding: 8px; background: #262626; border: 1px solid #404040; color: #fff; border-radius: 4px; box-sizing: border-box; }
-        .btn-action { width: 100%; padding: 10px; background: #ff4d4d; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        
-        /* EXCEL RENDER TABLE */
-        .excel-table { width: 100%; border-collapse: collapse; background: #fff; color: #000; }
-        .excel-table td, .excel-table th { border: 1px solid #ccc; padding: 6px; font-size: 11px; }
-        .excel-table th { background: #eee; }
+        body {
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .neon-text-red {
+            text-shadow: 0 0 5px #ff3333, 0 0 10px #ff3333;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff3333;
+            border-radius: 3px;
+        }
+        /* Style Tabel Excel saat di-render */
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        .excel-table td, .excel-table th {
+            border: 1px solid #cccccc !important;
+            padding: 8px !important;
+            font-size: 12px !important;
+            color: #000000 !important;
+        }
+        .excel-table th {
+            background-color: #f2f2f2 !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between">
 
-    <div class="header">
-        <div>
-            <h2>🖥️ MONITOR TV - SLOG KORPASGAT</h2>
-            <button class="btn-gear" onclick="openControlModal()" style="margin-top:5px;">⚙️ PANEL KONTROL</button>
-        </div>
-        <div id="clock"></div>
-    </div>
-
-    <div class="panel-monitor">
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>No. Surat</th>
-                        <th>Tanggal</th>
-                        <th>Nama Surat</th>
-                        <th>Dari</th>
-                        <th>Tentang</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tvTableBody">
-                    <tr><td colspan="6" style="text-align:center;">Memuat Data...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="controlModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="formTitle" style="color:#ff4d4d; font-weight:bold;">INPUT DATA</span>
-                <button onclick="closeControlModal()" style="background:#ff4d4d; color:#fff; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">TUTUP X</button>
+    <header class="border-b-2 border-red-600 bg-black p-4 flex flex-col md:flex-row justify-between items-center shadow-lg">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl animate-pulse"></i>
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-widest text-red-500 neon-text-red font-['Orbitron']">
+                    LIVE MONITOR TV - STAFFLOG KORPASGAT
+                </h1>
+                <p class="text-xs text-gray-400">Sistem Publikasi Surat & Dokumen Tanpa Download Otomatis</p>
             </div>
-            <div class="modal-body">
-                <form id="suratForm">
-                    <div class="form-group"><label>No. Surat:</label><input type="text" id="noSurat" required></div>
-                    <div class="form-group"><label>Tanggal:</label><input type="date" id="tanggal" required></div>
-                    <div class="form-group"><label>Nama Dokumen:</label><input type="text" id="namaSurat" required></div>
-                    <div class="form-group"><label>Dari:</label><input type="text" id="dari" required></div>
-                    <div class="form-group"><label>Perihal:</label><textarea id="tentang" required></textarea></div>
-                    <div class="form-group">
-                        <label>Pilih File Excel/Gambar:</label>
-                        <input type="file" id="fileSurat">
-                    </div>
-                    <button type="submit" id="btnKirim" class="btn-action">KIRIM KE LAYAR TV</button>
-                    <button type="button" id="btnBatalEdit" class="btn-action" style="background:#555; display:none; margin-top:5px;" onclick="resetFormMode()">BATAL EDIT</button>
-                </form>
+        </div>
+        <div class="mt-2 md:mt-0 text-right">
+            <span class="text-sm font-bold text-gray-300 font-['Orbitron']" id="liveClock">Memuat Jam...</span>
+        </div>
+    </header>
 
-                <div style="background:#000; padding:10px; margin-top:15px; border-radius:5px; border:1px solid #333;">
-                    <label>Master Key:</label><input type="text" id="secretKey" style="font-size:10px;">
-                    <label>Bin ID:</label><input type="text" id="binId" style="font-size:10px;">
-                    <button onclick="saveCloudSettings()" style="width:100%; margin-top:10px; background:#27ae60; color:#fff; border:none; padding:5px; border-radius:3px; cursor:pointer; font-size:11px;">SIMPAN CONFIG CLOUD</button>
+    <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
+                    <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2">
+                        <i class="fa-solid fa-cloud text-sm mr-2"></i> PENGATURAN DATABASE CLOUD
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Master Key</label>
+                            <input type="password" id="masterKey" class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan Master Key...">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Bin ID</label>
+                            <input type="text" id="binId" class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan Bin ID...">
+                        </div>
+                        <div class="flex space-x-2 pt-2">
+                            <button onclick="saveConfig()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> SIMPAN CONFIG
+                            </button>
+                            <button onclick="loadDatabase()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-xs font-bold transition duration-200">
+                                <i class="fa-solid fa-sync mr-1"></i> SEGARKAN DATA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md relative">
+                    <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2" id="formTitle">
+                        <i class="fa-solid fa-file-pen text-sm mr-2"></i> INPUT DATA SURAT / DOKUMEN
+                    </h2>
+                    <form id="suratForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                        <input type="hidden" id="editIndex" value="-1">
+                        
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Jenis / No. Surat</label>
+                            <input type="text" id="noSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Biasa / Rahasia">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Tanggal Surat</label>
+                            <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Nama Surat / Berkas</label>
+                            <input type="text" id="namaSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Peminjaman Alat Bidik">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Surat Dari</label>
+                            <input type="text" id="asalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: STAFFLOG KORPASGAT">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Tentang / Perihal</label>
+                            <textarea id="perihalSurat" rows="3" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi ringkas perihal..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Unggah Berkas (Excel / Word / Image):</label>
+                            <input type="file" id="fileInput" accept=".xlsx,.xls,.docx,.png,.jpg,.jpeg,.gif" class="w-full text-xs text-gray-400 bg-black border border-zinc-700 rounded p-2 focus:outline-none">
+                            <p class="text-[10px] text-zinc-500 mt-1">
+                                *Excel (.xlsx) akan otomatis dibersihkan menjadi tabel HTML yang sangat ringan agar tidak ditolak server dan bebas download otomatis.
+                            </p>
+                        </div>
+
+                        <div class="flex space-x-2 pt-2">
+                            <button type="submit" id="submitBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm font-bold transition duration-200">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> KIRIM KE LAYAR TV
+                            </button>
+                            <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded text-sm font-bold transition duration-200">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md h-full flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center justify-between border-b border-zinc-800 pb-2">
+                            <span><i class="fa-solid fa-list-check text-sm mr-2"></i> DAFTAR SURAT MASUK / KELUAR</span>
+                            <span class="text-xs bg-red-950 text-red-400 border border-red-900 px-2 py-0.5 rounded font-['Orbitron']" id="totalSurat">0 Surat</span>
+                        </h2>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="border-b border-zinc-800 text-gray-400">
+                                        <th class="py-3 px-2 font-semibold">No. Surat</th>
+                                        <th class="py-3 px-2 font-semibold">Tanggal</th>
+                                        <th class="py-3 px-2 font-semibold">Nama Surat</th>
+                                        <th class="py-3 px-2 font-semibold text-center">Aksi Berkas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="suratTableBody" class="divide-y divide-zinc-800">
+                                    <tr>
+                                        <td colspan="4" class="py-8 text-center text-zinc-500">
+                                            <i class="fa-solid fa-database mb-2 text-2xl"></i>
+                                            <p>Data kosong atau belum terhubung dengan cloud.</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500 flex justify-between items-center font-['Orbitron']">
+                        <span>STAFLOG KORPASGAT &copy; 2026</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="fileModal" class="modal-overlay">
-        <div class="modal-content wide-modal">
-            <div class="modal-header">
-                <span id="modalDocTitle" style="color:#ff4d4d; font-weight:bold;">PRATINJAU</span>
-                <button onclick="closePreviewModal()" style="background:#ff4d4d; color:#fff; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">TUTUP X</button>
+        </div>
+
+    </main>
+
+    <div id="viewerModal" class="fixed inset-0 bg-black bg-opacity-95 hidden z-50 flex flex-col items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-5xl h-[90vh] rounded-lg flex flex-col overflow-hidden shadow-2xl">
+            <div class="bg-black border-b border-zinc-800 p-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-file-invoice text-red-500"></i>
+                    <h3 class="text-md font-bold text-white font-['Orbitron']" id="modalSuratTitle">PREVIEW DOKUMEN</h3>
+                </div>
+                <button onclick="closeModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded text-sm transition duration-200">
+                    TUTUP X
+                </button>
             </div>
-            <div id="modalViewerBody" class="modal-body" style="background:#fff;"></div>
+            <div class="flex-grow p-6 overflow-y-auto bg-white text-black" id="modalBody">
+                </div>
         </div>
     </div>
 
-<script>
-    let databaseSurat = [];
-    let editIndex = null;
-    let fileDataTerimpan = "";
+    <div id="toast" class="fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 transition-all duration-300">
+        <span id="toastMessage">Sistem Siap!</span>
+    </div>
 
-    // Jam Digital
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('id-ID'); }, 1000);
+    <script>
+        let database = [];
+        let convertedFileData = ""; 
+        let fileDataTerimpan = "";
 
-    // Auto Refresh 15 detik
-    setInterval(() => { if (editIndex === null) fetchFromCloud(); }, 15000);
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedKey = localStorage.getItem("jsonbin_key");
+            const savedBin = localStorage.getItem("jsonbin_bin");
+            if (savedKey) document.getElementById("masterKey").value = savedKey;
+            if (savedBin) document.getElementById("binId").value = savedBin;
+            
+            startClock();
+            if (savedKey && savedBin) {
+                loadDatabase();
+            }
+        });
 
-    window.onload = function() {
-        document.getElementById('secretKey').value = localStorage.getItem('cloud_key') || '';
-        document.getElementById('binId').value = localStorage.getItem('cloud_bin') || '';
-        fetchFromCloud();
-    }
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById("liveClock").innerText = now.toLocaleString('id-ID', {
+                    dateStyle: 'medium',
+                    timeStyle: 'medium'
+                });
+            }, 1000);
+        }
 
-    function saveCloudSettings() {
-        localStorage.setItem('cloud_key', document.getElementById('secretKey').value.trim());
-        localStorage.setItem('cloud_bin', document.getElementById('binId').value.trim());
-        alert("Config Cloud Tersimpan!");
-        fetchFromCloud();
-    }
+        function saveConfig() {
+            const key = document.getElementById("masterKey").value.trim();
+            const bin = document.getElementById("binId").value.trim();
+            if (!key || !bin) {
+                showToast("Harap isi Master Key dan Bin ID!", "error");
+                return;
+            }
+            localStorage.setItem("jsonbin_key", key);
+            localStorage.setItem("jsonbin_bin", bin);
+            showToast("Konfigurasi disimpan!", "success");
+            loadDatabase();
+        }
 
-    function fetchFromCloud() {
-        const key = localStorage.getItem('cloud_key');
-        const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) return;
-        fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-        .then(res => res.json())
-        .then(data => {
-            databaseSurat = Array.isArray(data.record) ? data.record : [];
-            const tbody = document.getElementById('tvTableBody');
-            tbody.innerHTML = databaseSurat.length ? "" : "<tr><td colspan='6' style='text-align:center;'>Database Kosong</td></tr>";
-            [...databaseSurat].reverse().forEach((s, i) => {
-                const idx = databaseSurat.length - 1 - i;
-                tbody.innerHTML += `<tr><td>${s.noSurat}</td><td>${s.tanggal}</td><td>${s.namaSurat}</td><td>${s.dari}</td><td>${s.tentang}</td><td><button class="btn-view" onclick="openPreviewModal(${idx})">LIHAT</button><button class="btn-edit" onclick="aktifkanModeEdit(${idx})">EDIT</button></td></tr>`;
-            });
-        }).catch(e => console.log("Offline/Error"));
-    }
+        async function loadDatabase() {
+            const key = localStorage.getItem("jsonbin_key");
+            const bin = localStorage.getItem("jsonbin_bin");
+            if (!key || !bin) return;
 
-    function openPreviewModal(idx) {
-        const s = databaseSurat[idx];
-        document.getElementById('modalDocTitle').innerText = s.namaSurat;
-        const body = document.getElementById('modalViewerBody');
-        if(s.fileData.startsWith("<table")) { body.innerHTML = s.fileData; }
-        else if(s.fileData.startsWith("data:image")) { body.innerHTML = `<img src="${s.fileData}" style="max-width:100%;">`; }
-        else { body.innerHTML = `<iframe src="${s.fileData}" style="width:100%; height:100%; border:none;"></iframe>`; }
-        document.getElementById('fileModal').style.display = 'flex';
-    }
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
+                    headers: { "X-Master-Key": key }
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                database = Array.isArray(data.record) ? data.record : [];
+                renderTable();
+            } catch (err) {
+                showToast("Koneksi gagal / Bin ID salah!", "error");
+            }
+        }
 
-    function closePreviewModal() { document.getElementById('fileModal').style.display = 'none'; }
-    function openControlModal() { document.getElementById('controlModal').style.display = 'flex'; }
-    function closeControlModal() { if(!editIndex) document.getElementById('controlModal').style.display = 'none'; }
+        async function saveDatabaseToCloud() {
+            const key = localStorage.getItem("jsonbin_key");
+            const bin = localStorage.getItem("jsonbin_bin");
+            if (!key || !bin) return;
 
-    function aktifkanModeEdit(idx) {
-        editIndex = idx;
-        const s = databaseSurat[idx];
-        document.getElementById('noSurat').value = s.noSurat;
-        document.getElementById('tanggal').value = s.tanggal;
-        document.getElementById('namaSurat').value = s.namaSurat;
-        document.getElementById('dari').value = s.dari;
-        document.getElementById('tentang').value = s.tentang;
-        fileDataTerimpan = s.fileData;
-        document.getElementById('formTitle').innerText = "EDIT DATA";
-        document.getElementById('btnKirim').innerText = "SIMPAN PERUBAHAN";
-        document.getElementById('btnBatalEdit').style.display = "block";
-        openControlModal();
-    }
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}?versioning=false`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": key
+                    },
+                    body: JSON.stringify(database)
+                });
+                if (!res.ok) throw new Error("File Excel terlalu besar!");
+                showToast("Data Sukses Tayang di TV!", "success");
+                renderTable();
+            } catch (err) {
+                showToast("Gagal menyimpan: Ukuran berkas melampaui limit!", "error");
+            }
+        }
 
-    function resetFormMode() {
-        editIndex = null;
-        document.getElementById('suratForm').reset();
-        document.getElementById('formTitle').innerText = "INPUT DATA";
-        document.getElementById('btnKirim').innerText = "KIRIM KE LAYAR TV";
-        document.getElementById('btnBatalEdit').style.display = "none";
-        closeControlModal();
-    }
+        document.getElementById("fileInput").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-    document.getElementById('suratForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const key = localStorage.getItem('cloud_key');
-        const bin = localStorage.getItem('cloud_bin');
-        const file = document.getElementById('fileSurat').files[0];
-        const btn = document.getElementById('btnKirim');
-        btn.disabled = true; btn.innerText = "SINKRONISASI CLOUD...";
+            showToast("Membaca & Memproses File...", "info");
+            const reader = new FileReader();
 
-        const uploadData = (fData) => {
-            const newData = {
-                noSurat: document.getElementById('noSurat').value,
-                tanggal: document.getElementById('tanggal').value,
-                namaSurat: document.getElementById('namaSurat').value,
-                dari: document.getElementById('dari').value,
-                tentang: document.getElementById('tentang').value,
-                fileData: fData
+            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                reader.onload = function(evt) {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // Render ke Tabel HTML Polos (Ultra-Slim / Ringan)
+                        const rawHtml = XLSX.utils.sheet_to_html(worksheet, { header: '', footer: '' });
+                        convertedFileData = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
+                        
+                        showToast("Excel sukses dibersihkan!", "success");
+                    } catch (err) {
+                        showToast("Gagal membaca berkas Excel!", "error");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            else if (file.name.endsWith('.docx')) {
+                reader.onload = function(evt) {
+                    mammoth.convertToHtml({ arrayBuffer: evt.target.result })
+                        .then(function(result) {
+                            convertedFileData = result.value;
+                            showToast("Word dikonversi sukses!", "success");
+                        });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            else if (file.type.startsWith('image/')) {
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxDim = 800;
+                        let w = img.width, h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                            else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                        }
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        convertedFileData = canvas.toDataURL('image/jpeg', 0.7); // Kompresi 70%
+                        showToast("Gambar dikompres!", "success");
+                    };
+                    img.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById("editIndex").value);
+            const suratBaru = {
+                noSurat: document.getElementById("noSurat").value.trim(),
+                tanggal: document.getElementById("tanggalSurat").value,
+                namaSurat: document.getElementById("namaSurat").value.trim(),
+                dari: document.getElementById("asalSurat").value.trim(),
+                tentang: document.getElementById("perihalSurat").value.trim(),
+                fileData: convertedFileData || fileDataTerimpan
             };
 
-            // Ambil data terbaru dulu
-            fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-            .then(res => res.json())
-            .then(data => {
-                let db = Array.isArray(data.record) ? data.record : [];
-                if(editIndex !== null) db[editIndex] = newData; else db.push(newData);
-                
-                // Simpan kembali (Gunakan ?versioning=false untuk menghemat space)
-                return fetch(`https://api.jsonbin.io/v3/b/${bin}?versioning=false`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
-                    body: JSON.stringify(db)
-                });
-            })
-            .then(res => {
-                if(!res.ok) throw new Error("File terlalu besar!");
-                alert("Data Berhasil Tayang di TV!");
-                resetFormMode(); fetchFromCloud();
-            })
-            .catch(err => alert("ERROR: File Excel terlalu besar/padat untuk Cloud gratis. Kurangi baris/formatting Excel."))
-            .finally(() => { btn.disabled = false; btn.innerText = "KIRIM KE LAYAR TV"; });
-        };
-
-        if(file) {
-            const reader = new FileReader();
-            if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                reader.readAsArrayBuffer(file);
-                reader.onload = (ev) => {
-                    const wb = XLSX.read(ev.target.result, {type: 'array'});
-                    const ws = wb.Sheets[wb.SheetNames[0]];
-                    // KONVERSI RAW: Tanpa style, hanya tabel polos agar hemat data
-                    const rawHtml = XLSX.utils.sheet_to_html(ws, { header: '', footer: '' });
-                    const cleanHtml = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
-                    uploadData(cleanHtml);
-                };
+            if (index === -1) {
+                database.push(suratBaru);
             } else {
-                reader.readAsDataURL(file);
-                reader.onload = () => uploadData(reader.result);
+                database[index] = suratBaru;
             }
-        } else {
-            uploadData(fileDataTerimpan);
+
+            resetForm();
+            await saveDatabaseToCloud();
         }
-    });
-</script>
+
+        function renderTable() {
+            const tbody = document.getElementById("suratTableBody");
+            document.getElementById("totalSurat").innerText = `${database.length} Surat`;
+            
+            if (database.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-zinc-500">Database kosong / offline.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = database.map((surat, index) => {
+                return `
+                    <tr class="hover:bg-zinc-800 border-b border-zinc-800 text-gray-200">
+                        <td class="py-3 px-2 font-bold">${surat.noSurat}</td>
+                        <td class="py-3 px-2 text-xs">${surat.tanggal}</td>
+                        <td class="py-3 px-2">${surat.namaSurat}</td>
+                        <td class="py-3 px-2 text-center flex items-center justify-center space-x-2">
+                            <button onclick="viewDocument(${index})" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded transition duration-200">
+                                <i class="fa-solid fa-eye mr-1"></i> LIHAT
+                            </button>
+                            <button onclick="editDocument(${index})" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded transition duration-200">
+                                <i class="fa-solid fa-edit mr-1"></i> EDIT
+                            </button>
+                            <button onclick="deleteDocument(${index})" class="bg-black hover:bg-zinc-950 text-red-500 text-xs font-bold px-3 py-1.5 rounded border border-zinc-800 transition duration-200">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewDocument(index) {
+            const surat = database[index];
+            if (!surat) return;
+
+            document.getElementById("modalSuratTitle").innerText = `VIEWER DOKUMEN: ${surat.namaSurat.toUpperCase()}`;
+            const body = document.getElementById("modalBody");
+            body.innerHTML = ""; 
+
+            if (!surat.fileData) {
+                body.innerHTML = `<div class="text-center py-12 text-zinc-600"><p class="font-bold">Tidak ada lampiran file fisik.</p></div>`;
+            } 
+            else if (surat.fileData.startsWith("<table") || surat.fileData.includes("excel-table") || !surat.fileData.startsWith("data:")) {
+                body.innerHTML = `
+                    <div class="max-w-4xl mx-auto">
+                        <div class="mb-4 bg-gray-100 p-3 rounded text-xs text-gray-700 grid grid-cols-2 gap-2">
+                            <div><strong>Dari:</strong> ${surat.dari}</div>
+                            <div><strong>Tanggal:</strong> ${surat.tanggal}</div>
+                            <div class="col-span-2"><strong>Perihal:</strong> ${surat.tentang}</div>
+                        </div>
+                        <div class="overflow-x-auto">${surat.fileData}</div>
+                    </div>
+                `;
+            } 
+            else if (surat.fileData.startsWith("data:image")) {
+                body.innerHTML = `<img src="${surat.fileData}" class="max-w-full max-h-[75vh] mx-auto block rounded">`;
+            }
+
+            document.getElementById("viewerModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("viewerModal").classList.add("hidden");
+        }
+
+        function editDocument(index) {
+            const surat = database[index];
+            if (!surat) return;
+
+            document.getElementById("editIndex").value = index;
+            document.getElementById("noSurat").value = surat.noSurat;
+            document.getElementById("tanggalSurat").value = surat.tanggal;
+            document.getElementById("namaSurat").value = surat.namaSurat;
+            document.getElementById("asalSurat").value = surat.dari;
+            document.getElementById("perihalSurat").value = surat.tentang;
+            
+            fileDataTerimpan = surat.fileData;
+            convertedFileData = ""; 
+
+            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-edit text-sm mr-2 text-yellow-500 animate-pulse"></i> EDIT MODE SURAT`;
+            document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-sm font-bold transition duration-200";
+            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> Perbarui Berkas`;
+            document.getElementById("cancelEditBtn").classList.remove("hidden");
+        }
+
+        async function deleteDocument(index) {
+            if (confirm("Hapus dokumen ini?")) {
+                database.splice(index, 1);
+                await saveDatabaseToCloud();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById("suratForm").reset();
+            document.getElementById("editIndex").value = "-1";
+            convertedFileData = "";
+            fileDataTerimpan = "";
+            
+            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-file-pen text-sm mr-2"></i> INPUT DATA SURAT / DOKUMEN`;
+            document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm font-bold transition duration-200";
+            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> KIRIM KE LAYAR TV`;
+            document.getElementById("cancelEditBtn").classList.add("hidden");
+        }
+
+        function showToast(msg, type = "info") {
+            const toast = document.getElementById("toast");
+            const toastMsg = document.getElementById("toastMessage");
+            toastMsg.innerText = msg;
+            
+            toast.className = "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 block";
+            if (type === "success") toast.classList.add("bg-green-600");
+            else if (type === "error") toast.classList.add("bg-red-600");
+            else if (type === "info") toast.classList.add("bg-blue-600");
+
+            setTimeout(() => { toast.classList.add("hidden"); }, 3000);
+        }
+    </script>
 </body>
 </html>
