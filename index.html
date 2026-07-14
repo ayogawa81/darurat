@@ -20,7 +20,6 @@
         .neon-text-red {
             text-shadow: 0 0 5px #ff3333, 0 0 10px #ff3333;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -32,21 +31,23 @@
             background: #ff3333;
             border-radius: 3px;
         }
-        /* Style Tabel Excel saat di-render */
+        /* Desain Tabel Render Excel agar tidak berantakan & bersih */
         .excel-table {
             width: 100%;
             border-collapse: collapse;
             background: #ffffff !important;
             color: #000000 !important;
+            margin-top: 10px;
         }
         .excel-table td, .excel-table th {
-            border: 1px solid #cccccc !important;
-            padding: 8px !important;
-            font-size: 12px !important;
+            border: 1px solid #dddddd !important;
+            padding: 6px 10px !important;
+            font-size: 11px !important;
             color: #000000 !important;
+            font-family: sans-serif !important;
         }
         .excel-table th {
-            background-color: #f2f2f2 !important;
+            background-color: #eaeaea !important;
             font-weight: bold !important;
         }
     </style>
@@ -60,7 +61,7 @@
                 <h1 class="text-xl md:text-2xl font-bold tracking-widest text-red-500 neon-text-red font-['Orbitron']">
                     LIVE MONITOR TV - STAFFLOG KORPASGAT
                 </h1>
-                <p class="text-xs text-gray-400">Sistem Publikasi Surat & Dokumen Tanpa Download Otomatis</p>
+                <p class="text-xs text-gray-400">Sistem Publikasi Surat & Dokumen - Anti Download Otomatis</p>
             </div>
         </div>
         <div class="mt-2 md:mt-0 text-right">
@@ -74,74 +75,72 @@
             
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
-                    <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2">
-                        <i class="fa-solid fa-cloud text-sm mr-2"></i> PENGATURAN DATABASE CLOUD
+                    <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']">
+                        <i class="fa-solid fa-cloud text-xs mr-2"></i> KONEKSI DATABASE CLOUD
                     </h2>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Master Key</label>
-                            <input type="password" id="masterKey" class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan Master Key...">
+                            <input type="password" id="masterKey" class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan X-Master-Key...">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Bin ID</label>
-                            <input type="text" id="binId" class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan Bin ID...">
+                            <input type="text" id="binId" class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan Bin ID...">
                         </div>
-                        <div class="flex space-x-2 pt-2">
+                        <div class="flex space-x-2 pt-1">
                             <button onclick="saveConfig()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200">
                                 <i class="fa-solid fa-floppy-disk mr-1"></i> SIMPAN CONFIG
                             </button>
                             <button onclick="loadDatabase()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-xs font-bold transition duration-200">
-                                <i class="fa-solid fa-sync mr-1"></i> SEGARKAN DATA
+                                <i class="fa-solid fa-sync mr-1"></i> REFRESH DATA
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md relative">
-                    <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2" id="formTitle">
-                        <i class="fa-solid fa-file-pen text-sm mr-2"></i> INPUT DATA SURAT / DOKUMEN
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
+                    <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']" id="formTitle">
+                        <i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN
                     </h2>
                     <form id="suratForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="-1">
                         
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Jenis / No. Surat</label>
-                            <input type="text" id="noSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Biasa / Rahasia">
+                            <input type="text" id="noSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Biasa / Rahasia / No. Surat">
                         </div>
                         
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Tanggal Surat</label>
-                            <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500">
+                            <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500">
                         </div>
 
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Nama Surat / Berkas</label>
-                            <input type="text" id="namaSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Peminjaman Alat Bidik">
+                            <input type="text" id="namaSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Peminjaman Alat Bidik">
                         </div>
 
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Surat Dari</label>
-                            <input type="text" id="asalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: STAFFLOG KORPASGAT">
+                            <input type="text" id="asalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: STAFFLOG KORPASGAT">
                         </div>
 
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Tentang / Perihal</label>
-                            <textarea id="perihalSurat" rows="3" required class="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi ringkas perihal..."></textarea>
+                            <textarea id="perihalSurat" rows="2" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi perihal singkat..."></textarea>
                         </div>
 
                         <div>
-                            <label class="block text-xs text-gray-400 mb-1">Unggah Berkas (Excel / Word / Image):</label>
-                            <input type="file" id="fileInput" accept=".xlsx,.xls,.docx,.png,.jpg,.jpeg,.gif" class="w-full text-xs text-gray-400 bg-black border border-zinc-700 rounded p-2 focus:outline-none">
-                            <p class="text-[10px] text-zinc-500 mt-1">
-                                *Excel (.xlsx) akan otomatis dibersihkan menjadi tabel HTML yang sangat ringan agar tidak ditolak server dan bebas download otomatis.
-                            </p>
+                            <label class="block text-xs text-gray-400 mb-1">Unggah Berkas Fisik (Excel / Word / Image):</label>
+                            <input type="file" id="fileInput" accept=".xlsx,.xls,.docx,.png,.jpg,.jpeg" class="w-full text-xs text-gray-400 bg-black border border-zinc-700 rounded p-2 focus:outline-none">
+                            <span id="fileLoadingStatus" class="block text-[10px] text-yellow-500 mt-1 hidden">Sedang memproses & mengonversi file...</span>
                         </div>
 
                         <div class="flex space-x-2 pt-2">
-                            <button type="submit" id="submitBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm font-bold transition duration-200">
-                                <i class="fa-solid fa-paper-plane mr-1"></i> KIRIM KE LAYAR TV
+                            <button type="submit" id="submitBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> TAYANGKAN DI TV
                             </button>
-                            <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded text-sm font-bold transition duration-200">
+                            <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded text-xs font-bold transition duration-200">
                                 Batal
                             </button>
                         </div>
@@ -153,13 +152,13 @@
             <div class="lg:col-span-2">
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md h-full flex flex-col justify-between">
                     <div>
-                        <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center justify-between border-b border-zinc-800 pb-2">
-                            <span><i class="fa-solid fa-list-check text-sm mr-2"></i> DAFTAR SURAT MASUK / KELUAR</span>
-                            <span class="text-xs bg-red-950 text-red-400 border border-red-900 px-2 py-0.5 rounded font-['Orbitron']" id="totalSurat">0 Surat</span>
+                        <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center justify-between border-b border-zinc-800 pb-2 font-['Orbitron']">
+                            <span><i class="fa-solid fa-list-check text-xs mr-2"></i> DAFTAR SURAT MASUK / KELUAR</span>
+                            <span class="text-xs bg-red-950 text-red-400 border border-red-900 px-2 py-0.5 rounded" id="totalSurat">0 Surat</span>
                         </h2>
                         
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm border-collapse">
+                            <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="border-b border-zinc-800 text-gray-400">
                                         <th class="py-3 px-2 font-semibold">No. Surat</th>
@@ -171,8 +170,8 @@
                                 <tbody id="suratTableBody" class="divide-y divide-zinc-800">
                                     <tr>
                                         <td colspan="4" class="py-8 text-center text-zinc-500">
-                                            <i class="fa-solid fa-database mb-2 text-2xl"></i>
-                                            <p>Data kosong atau belum terhubung dengan cloud.</p>
+                                            <i class="fa-solid fa-database mb-2 text-xl block"></i>
+                                            <p>Data kosong atau belum terhubung dengan Cloud.</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -180,7 +179,7 @@
                         </div>
                     </div>
                     
-                    <div class="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500 flex justify-between items-center font-['Orbitron']">
+                    <div class="mt-4 pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 flex justify-between items-center font-['Orbitron']">
                         <span>STAFLOG KORPASGAT &copy; 2026</span>
                     </div>
                 </div>
@@ -194,14 +193,14 @@
         <div class="bg-zinc-900 border border-zinc-800 w-full max-w-5xl h-[90vh] rounded-lg flex flex-col overflow-hidden shadow-2xl">
             <div class="bg-black border-b border-zinc-800 p-4 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-file-invoice text-red-500"></i>
-                    <h3 class="text-md font-bold text-white font-['Orbitron']" id="modalSuratTitle">PREVIEW DOKUMEN</h3>
+                    <i class="fa-solid fa-file-contract text-red-500"></i>
+                    <h3 class="text-xs font-bold text-white font-['Orbitron']" id="modalSuratTitle">PREVIEW DOKUMEN</h3>
                 </div>
-                <button onclick="closeModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded text-sm transition duration-200">
+                <button onclick="closeModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded text-xs transition duration-200">
                     TUTUP X
                 </button>
             </div>
-            <div class="flex-grow p-6 overflow-y-auto bg-white text-black" id="modalBody">
+            <div class="flex-grow p-6 overflow-y-auto bg-white text-black" id="modalBody" oncontextmenu="return false;">
                 </div>
         </div>
     </div>
@@ -264,7 +263,7 @@
                 database = Array.isArray(data.record) ? data.record : [];
                 renderTable();
             } catch (err) {
-                showToast("Koneksi gagal / Bin ID salah!", "error");
+                showToast("Koneksi gagal atau Bin ID salah!", "error");
             }
         }
 
@@ -282,21 +281,26 @@
                     },
                     body: JSON.stringify(database)
                 });
-                if (!res.ok) throw new Error("File Excel terlalu besar!");
-                showToast("Data Sukses Tayang di TV!", "success");
+                if (!res.ok) throw new Error();
+                showToast("Data Berhasil Disinkronkan!", "success");
                 renderTable();
             } catch (err) {
-                showToast("Gagal menyimpan: Ukuran berkas melampaui limit!", "error");
+                showToast("Gagal menyimpan! Periksa konfigurasi atau kurangi ukuran file.", "error");
             }
         }
 
+        // PROSES DETEKSI & PARSING ANTI-DOWNLOAD
         document.getElementById("fileInput").addEventListener("change", function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
+            const loader = document.getElementById("fileLoadingStatus");
+            loader.classList.remove("hidden");
             showToast("Membaca & Memproses File...", "info");
+
             const reader = new FileReader();
 
+            // 1. FORMAT EXCEL (Dikonversi ke HTML Table Ringan)
             if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
                 reader.onload = function(evt) {
                     try {
@@ -305,34 +309,46 @@
                         const firstSheetName = workbook.SheetNames[0];
                         const worksheet = workbook.Sheets[firstSheetName];
                         
-                        // Render ke Tabel HTML Polos (Ultra-Slim / Ringan)
+                        // Buat tabel mentah tanpa tag-tag kompleks pembungkus
                         const rawHtml = XLSX.utils.sheet_to_html(worksheet, { header: '', footer: '' });
-                        convertedFileData = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
                         
-                        showToast("Excel sukses dibersihkan!", "success");
+                        // Inject class CSS buatan untuk styling rapi
+                        const cleanTable = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
+                        convertedFileData = cleanTable;
+                        
+                        loader.classList.add("hidden");
+                        showToast("Excel dikonversi sukses!", "success");
                     } catch (err) {
+                        loader.classList.add("hidden");
                         showToast("Gagal membaca berkas Excel!", "error");
                     }
                 };
                 reader.readAsArrayBuffer(file);
             }
+            // 2. FORMAT WORD (.DOCX) (Dikonversi ke HTML Teks murni)
             else if (file.name.endsWith('.docx')) {
                 reader.onload = function(evt) {
                     mammoth.convertToHtml({ arrayBuffer: evt.target.result })
                         .then(function(result) {
-                            convertedFileData = result.value;
-                            showToast("Word dikonversi sukses!", "success");
+                            convertedFileData = `<div class="p-4 prose prose-sm max-w-none text-black">${result.value}</div>`;
+                            loader.classList.add("hidden");
+                            showToast("Word sukses dikonversi ke teks!", "success");
+                        })
+                        .catch(function(err) {
+                            loader.classList.add("hidden");
+                            showToast("Format Word lama (.doc) tidak didukung, gunakan (.docx)!", "error");
                         });
                 };
                 reader.readAsArrayBuffer(file);
             }
+            // 3. FORMAT GAMBAR (Kompresi 50% untuk hemat JSONBin)
             else if (file.type.startsWith('image/')) {
                 reader.onload = function(evt) {
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const maxDim = 800;
+                        const maxDim = 700; // Maksimal lebar 700px agar payload kecil
                         let w = img.width, h = img.height;
                         if (w > maxDim || h > maxDim) {
                             if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
@@ -340,25 +356,36 @@
                         }
                         canvas.width = w; canvas.height = h;
                         ctx.drawImage(img, 0, 0, w, h);
-                        convertedFileData = canvas.toDataURL('image/jpeg', 0.7); // Kompresi 70%
+                        
+                        // Simpan sebagai Base64 terkompresi rendah (JPEG 50%)
+                        convertedFileData = `<div class="flex justify-center"><img src="${canvas.toDataURL('image/jpeg', 0.5)}" class="max-w-full rounded shadow"></div>`;
+                        
+                        loader.classList.add("hidden");
                         showToast("Gambar dikompres!", "success");
                     };
                     img.src = evt.target.result;
                 };
                 reader.readAsDataURL(file);
+            } else {
+                loader.classList.add("hidden");
+                showToast("Format file tidak didukung! Gunakan .xlsx, .docx, atau Gambar.", "error");
+                this.value = "";
             }
         });
 
         async function handleFormSubmit(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
+            
+            const fileFinal = convertedFileData || fileDataTerimpan;
+
             const suratBaru = {
                 noSurat: document.getElementById("noSurat").value.trim(),
                 tanggal: document.getElementById("tanggalSurat").value,
                 namaSurat: document.getElementById("namaSurat").value.trim(),
                 dari: document.getElementById("asalSurat").value.trim(),
                 tentang: document.getElementById("perihalSurat").value.trim(),
-                fileData: convertedFileData || fileDataTerimpan
+                fileData: fileFinal // Murni HTML atau Image Base64 yang sudah dibersihkan
             };
 
             if (index === -1) {
@@ -391,7 +418,7 @@
                                 <i class="fa-solid fa-eye mr-1"></i> LIHAT
                             </button>
                             <button onclick="editDocument(${index})" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded transition duration-200">
-                                <i class="fa-solid fa-edit mr-1"></i> EDIT
+                                <i class="fa-solid fa-edit"></i>
                             </button>
                             <button onclick="deleteDocument(${index})" class="bg-black hover:bg-zinc-950 text-red-500 text-xs font-bold px-3 py-1.5 rounded border border-zinc-800 transition duration-200">
                                 <i class="fa-solid fa-trash"></i>
@@ -402,6 +429,7 @@
             }).join('');
         }
 
+        // FUNGSIONALITAS PREVIEW KHUSUS (ANTI DOWNLOAD)
         function viewDocument(index) {
             const surat = database[index];
             if (!surat) return;
@@ -410,23 +438,30 @@
             const body = document.getElementById("modalBody");
             body.innerHTML = ""; 
 
-            if (!surat.fileData) {
-                body.innerHTML = `<div class="text-center py-12 text-zinc-600"><p class="font-bold">Tidak ada lampiran file fisik.</p></div>`;
+            // Jika tidak ada data file terlampir
+            if (!surat.fileData || surat.fileData.trim() === "") {
+                body.innerHTML = `
+                    <div class="text-center py-12 text-zinc-600">
+                        <i class="fa-solid fa-circle-exclamation text-3xl mb-2 text-yellow-500"></i>
+                        <p class="font-bold">Tidak ada lampiran berkas terunggah.</p>
+                        <p class="text-xs text-gray-500 mt-1">Harap edit dokumen ini dan unggah ulang berkasnya.</p>
+                    </div>`;
             } 
-            else if (surat.fileData.startsWith("<table") || surat.fileData.includes("excel-table") || !surat.fileData.startsWith("data:")) {
+            // Jika data adalah HTML tabel (Excel) atau format konversi Word
+            else {
+                // Tampilkan info tambahan di atas preview untuk detail arsip surat
                 body.innerHTML = `
                     <div class="max-w-4xl mx-auto">
-                        <div class="mb-4 bg-gray-100 p-3 rounded text-xs text-gray-700 grid grid-cols-2 gap-2">
-                            <div><strong>Dari:</strong> ${surat.dari}</div>
-                            <div><strong>Tanggal:</strong> ${surat.tanggal}</div>
-                            <div class="col-span-2"><strong>Perihal:</strong> ${surat.tentang}</div>
+                        <div class="mb-4 bg-zinc-100 p-4 rounded text-xs text-zinc-800 grid grid-cols-1 md:grid-cols-2 gap-3 border border-zinc-300">
+                            <div><strong>Asal Surat / Pengirim:</strong> ${surat.dari}</div>
+                            <div><strong>Tanggal Berkas:</strong> ${surat.tanggal}</div>
+                            <div class="col-span-1 md:col-span-2 border-t border-zinc-300 pt-2"><strong>Perihal / Isi Ringkas:</strong> ${surat.tentang}</div>
                         </div>
-                        <div class="overflow-x-auto">${surat.fileData}</div>
+                        <div class="border border-zinc-300 rounded p-4 overflow-x-auto bg-white">
+                            ${surat.fileData}
+                        </div>
                     </div>
                 `;
-            } 
-            else if (surat.fileData.startsWith("data:image")) {
-                body.innerHTML = `<img src="${surat.fileData}" class="max-w-full max-h-[75vh] mx-auto block rounded">`;
             }
 
             document.getElementById("viewerModal").classList.remove("hidden");
@@ -450,14 +485,14 @@
             fileDataTerimpan = surat.fileData;
             convertedFileData = ""; 
 
-            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-edit text-sm mr-2 text-yellow-500 animate-pulse"></i> EDIT MODE SURAT`;
-            document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-sm font-bold transition duration-200";
-            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> Perbarui Berkas`;
+            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-edit text-xs mr-2 text-yellow-500 animate-pulse"></i> EDIT MODE SURAT`;
+            document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-xs font-bold transition duration-200";
+            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> UPDATE BERKAS`;
             document.getElementById("cancelEditBtn").classList.remove("hidden");
         }
 
         async function deleteDocument(index) {
-            if (confirm("Hapus dokumen ini?")) {
+            if (confirm("Apakah Anda yakin ingin menghapus dokumen ini?")) {
                 database.splice(index, 1);
                 await saveDatabaseToCloud();
             }
@@ -469,9 +504,9 @@
             convertedFileData = "";
             fileDataTerimpan = "";
             
-            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-file-pen text-sm mr-2"></i> INPUT DATA SURAT / DOKUMEN`;
-            document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm font-bold transition duration-200";
-            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> KIRIM KE LAYAR TV`;
+            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN`;
+            document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200";
+            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> TAYANGKAN DI TV`;
             document.getElementById("cancelEditBtn").classList.add("hidden");
         }
 
