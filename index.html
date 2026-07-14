@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Monitor TV - Surat Darurat</title>
+    <title>Live Monitor TV - Pengumuman Slog</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -18,7 +19,6 @@
             overflow: hidden;
         }
         
-        /* HEADER UTAMA */
         .header {
             display: flex;
             justify-content: space-between;
@@ -33,14 +33,12 @@
         .header h2 { margin: 0; color: #ff4d4d; letter-spacing: 1px; text-transform: uppercase; font-size: 22px;}
         #clock { font-size: 18px; font-weight: bold; color: #ff4d4d; }
 
-        /* GEAR ICON (PANEL KONTROL TERSEMBUNYI) */
         .btn-gear {
             background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 8px 14px; border-radius: 6px;
             cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s;
         }
         .btn-gear:hover { background: #ff4d4d; border-color: #ff4d4d; }
 
-        /* MONITOR LIVE */
         .panel-monitor {
             flex: 1; background: #1e1e1e; padding: 20px; border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; min-height: 0;
@@ -58,7 +56,6 @@
         .btn-edit { background: #f0ad4e; color: #121212; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; margin-left: 5px;}
         .btn-edit:hover { background: #ec971f; }
 
-        /* JENDELA POPUP OVERLAY */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 999; display: none; justify-content: center; align-items: center;
@@ -67,14 +64,17 @@
             background: #1e1e1e; width: 500px; max-width: 90%; max-height: 90vh;
             border-radius: 10px; border: 2px solid #ff4d4d; display: flex; flex-direction: column; overflow: hidden;
         }
-        /* UKURAN VIEWER DIBUAT PAS LAYAR 95% AGAR SESUAI TATA LETAK FILE */
         .wide-modal { width: 95% !important; height: 92% !important; }
         
         .modal-header { background: #2a2a2a; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
         .modal-title { font-weight: bold; color: #ff4d4d; font-size: 16px; }
         .btn-close-modal { background: #d9534f; color: white; border: none; padding: 6px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
-        .modal-body iframe { width: 100%; height: 100%; border: none; background: #fff; }
+        
+        /* Style Khusus untuk Merender Tampilan Isi Lembar Excel */
+        .excel-render-table { width: 100%; border-collapse: collapse; background: #ffffff; color: #333333; }
+        .excel-render-table th, .excel-render-table td { padding: 8px; border: 1px solid #cccccc; color: #333333; font-size: 12px; }
+        .excel-render-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
 
         .form-group { margin-bottom: 14px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #bbb; font-size: 13px; }
@@ -90,14 +90,14 @@
         .setting-box { background: #151515; padding: 15px; border-radius: 6px; border: 1px solid #333; margin-top: 20px; }
         .setting-box h4 { margin: 0 0 10px 0; color: #aaa; font-size: 13px; }
         .btn-sync-mini { padding: 6px 12px; background: #444; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 12px; width: 48%; margin-top: 5px;}
-        .info-file { font-size: 11px; color: #a8a8a8; margin-top: 4px; display: block; }
+        .info-file { font-size: 11px; color: #ff4d4d; margin-top: 4px; display: block; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="header-left">
-            <h2>🖥️ LIVE MONITOR TV SURAT DARURAT</h2>
+            <h2>🖥️ LIVE MONITOR TV - PENGERJAAN SLOG</h2>
             <button class="btn-gear" onclick="openControlModal()">⚙️ PANEL KONTROL</button>
         </div>
         <div id="clock"></div>
@@ -131,16 +131,16 @@
             </div>
             <div class="modal-body">
                 <form id="suratForm">
-                    <div class="form-group"><label>No. Surat :</label><input type="text" id="noSurat" required placeholder="Contoh: 01/DRT/2026"></div>
+                    <div class="form-group"><label>No. Surat :</label><input type="text" id="noSurat" required placeholder="Contoh: 01/SLOG/2026"></div>
                     <div class="form-group"><label>Tanggal Surat :</label><input type="date" id="tanggal" required></div>
                     <div class="form-group"><label>Nama Surat :</label><input type="text" id="namaSurat" required placeholder="Judul arsip berkas"></div>
                     <div class="form-group"><label>Surat Dari :</label><input type="text" id="dari" required placeholder="Instansi / Pengirim"></div>
                     <div class="form-group"><label>Tentang / Perihal :</label><textarea id="tentang" required placeholder="Ringkasan berita..."></textarea></div>
                     
                     <div class="form-group" id="fileGroup">
-                        <label>Pilih File Fisik Surat (PDF/Gambar/Excel):</label>
-                        <input type="file" id="fileSurat" required>
-                        <span class="info-file">*File besar jenis gambar otomatis dikompres sistem agar tidak crash.</span>
+                        <label>Unggah Berkas Langsung (Excel / Image / PDF):</label>
+                        <input type="file" id="fileSurat">
+                        <span class="info-file">*Sistem otomatis merubah Excel menjadi tabel web interaktif agar tidak terdownload otomatis di TV Monitor.</span>
                     </div>
                     
                     <button type="submit" id="btnKirim" class="btn-action">KIRIM & TAMPILKAN</button>
@@ -170,10 +170,8 @@
                 <div class="modal-title" id="modalDocTitle">Pratinjau Dokumen Berkas</div>
                 <button class="btn-close-modal" onclick="closePreviewModal()">TUTUP X</button>
             </div>
-            <div class="modal-body" style="padding:0; background:#fff; display:flex; justify-content:center; align-items:center;">
-                <iframe id="previewIframe" style="width:100%; height:100%; display:none;"></iframe>
-                <img id="previewImg" style="max-width:100%; max-height:100%; object-fit:contain; display:none;" />
-            </div>
+            <div class="modal-body" id="modalViewerBody" style="background:#fff; overflow: auto; padding: 15px;">
+                </div>
         </div>
     </div>
 
@@ -181,6 +179,7 @@
     let databaseSurat = [];
     let editIndex = null; 
     let fileDataTerimpan = ""; 
+    let currentFileType = ""; // Menyimpan tipe ekstensi file saat ini
 
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleString('id-ID');
@@ -191,19 +190,8 @@
     }, 10000);
 
     window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlKey = urlParams.get('key');
-        const urlBin = urlParams.get('bin');
-
-        if (urlKey && urlBin) {
-            localStorage.setItem('cloud_key', urlKey);
-            localStorage.setItem('cloud_bin', urlBin);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
         document.getElementById('secretKey').value = localStorage.getItem('cloud_key') || '';
         document.getElementById('binId').value = localStorage.getItem('cloud_bin') || '';
-        
         fetchFromCloud();
     }
 
@@ -220,26 +208,16 @@
         fetchFromCloud();
     }
 
-    function copySyncLink() {
-        const key = localStorage.getItem('cloud_key');
-        const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) { alert("Simpan config dahulu!"); return; }
-        const syncUrl = `${window.location.href.split('?')[0]}?key=${encodeURIComponent(key)}&bin=${encodeURIComponent(bin)}`;
-        navigator.clipboard.writeText(syncUrl).then(() => { alert("Link Sinkronisasi tersalin!"); });
-    }
-
     function fetchFromCloud() {
         const key = localStorage.getItem('cloud_key');
         const bin = localStorage.getItem('cloud_bin');
         if(!key || !bin) return;
 
         fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-        .then(res => {
-            if (!res.ok) throw new Error("Gagal mengambil data. Periksa kembali Master Key / Bin ID.");
-            return res.json();
-        })
+        .then(res => { if (!res.ok) throw new Error("Gagal mengambil data cloud."); return res.json(); })
         .then(resData => {
-            databaseSurat = Array.isArray(resData.record) ? resData.record : [];
+            let cleanRecord = Array.isArray(resData.record) ? resData.record : [];
+            databaseSurat = cleanRecord.filter(item => item && item.noSurat);
             renderTable();
         })
         .catch(err => console.error(err));
@@ -249,7 +227,7 @@
         const tbody = document.getElementById('tvTableBody');
         tbody.innerHTML = "";
         if(databaseSurat.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip surat online atau format cloud kosong.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip dokumen online.</td></tr>`;
             return;
         }
         
@@ -271,89 +249,38 @@
         });
     }
 
-  // PERBAIKAN ENGINE VIEWER KHUSUS EXCEL & DOKUMEN AGAR TIDAK OTOMATIS DOWNLOAD
+    // FUNGSI RENDER UTAMA AGAR EXCEL MUNCUL SEBAGAI TABEL BUKAN DOWNLOAD
     function openPreviewModal(index) {
         const targetSurat = databaseSurat[index];
         if(!targetSurat) return;
         
         let fileData = targetSurat.fileData;
-        if(!fileData) {
-            fileData = localStorage.getItem("local_file_" + targetSurat.noSurat);
-        }
+        let fileKind = targetSurat.fileType || "html";
         
-        if(!fileData) { alert("Berkas fisik tidak ditemukan / gagal sinkron!"); return; }
+        if(!fileData) { alert("Berkas dokumen kosong!"); return; }
         
         document.getElementById('modalDocTitle').innerText = `📄 VIEWER DOKUMEN: ${targetSurat.namaSurat || ''}`;
-        
-        const iframe = document.getElementById('previewIframe');
-        const img = document.getElementById('previewImg');
-        
-        // JIKA FORMATNYA GAMBAR HUKUMNYA TETAP DIMUNCULKAN SECARA LANGSUNG
-        if(fileData.startsWith("data:image/")) {
-            iframe.style.display = "none";
-            img.src = fileData;
-            img.style.display = "block";
+        const viewerBody = document.getElementById('modalViewerBody');
+        viewerBody.innerHTML = ""; // Kosongkan viewer dahulu
+
+        if(fileKind === "excel" || fileData.startsWith("<table")) {
+            // Render langsung struktur data HTML Excel yang sudah di-convert
+            viewerBody.innerHTML = `<div style="overflow:auto; width:100%; height:100%;">${fileData}</div>`;
         } 
-        // JIKA FORMATNYA BERUPA TAUTAN TERTULIS (URL ONLINE)
-        else if(fileData.startsWith("http")) {
-            img.style.display = "none";
-            
-            // PROTEKSI KHUSUS EXCEL/WORD: Jika tautan mengarah ke berkas dokumen, gunakan engine Microsoft Office Online agar tampil di layar
-            if(fileData.includes(".xlsx") || fileData.includes(".xls") || fileData.includes(".docx")) {
-                iframe.src = "https://view.officeapps.live.com/op/view.aspx?src=" + encodeURIComponent(fileData);
-            } else {
-                // Untuk PDF atau link dokumen umum lainnya menggunakan Google Viewer Engine
-                iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(fileData) + "&embedded=true";
-            }
-            
-            iframe.style.display = "block";
-        }
-        // JIKA FORMATNYA ADALAH BASE64 ENKRIPSI LOKAL (PDF DATA)
+        else if(fileData.startsWith("data:image/")) {
+            viewerBody.innerHTML = `<img src="${fileData}" style="max-width:100%; max-height:100%; object-fit:contain; display:block; margin:auto;" />`;
+        } 
         else {
-            img.style.display = "none";
-            iframe.src = fileData; 
-            iframe.style.display = "block";
+            // PDF Render Fallback
+            viewerBody.innerHTML = `<iframe src="${fileData}" style="width:100%; height:100%; border:none;"></iframe>`;
         }
         
         document.getElementById('fileModal').style.display = 'flex';
     }
-    // ENGINE ALGORITMA KOMPRESI GAMBAR (Mengubah 5MB jadi 70KB secara instan)
-    function compressImageAndProcess(file, callback) {
-        if (!file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => callback(reader.result, true);
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-
-                const MAX_WIDTH = 1200;
-                const MAX_HEIGHT = 1200;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                } else {
-                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.75); // Kualitas diperkecil ke 75%
-                callback(dataUrl, false);
-            };
-        };
+    
+    function closePreviewModal() {
+        document.getElementById('fileModal').style.display = 'none';
+        document.getElementById('modalViewerBody').innerHTML = "";
     }
 
     function aktifkanModeEdit(index) {
@@ -366,24 +293,20 @@
         document.getElementById('dari').value = dataTarget.dari || '';
         document.getElementById('tentang').value = dataTarget.tentang || '';
         
-        fileDataTerimpan = dataTarget.fileData || localStorage.getItem("local_file_" + dataTarget.noSurat) || ''; 
-        document.getElementById('fileSurat').required = false; 
+        fileDataTerimpan = dataTarget.fileData || '';
+        currentFileType = dataTarget.fileType || '';
 
         document.getElementById('formTitle').innerText = "✏️ EDIT DATA SURAT";
         const btnKirim = document.getElementById('btnKirim');
         btnKirim.innerText = "SIMPAN PERUBAHAN";
         btnKirim.classList.add('btn-edit-mode');
         document.getElementById('btnBatalEdit').style.display = "block";
-        
         openControlModal();
     }
 
     function resetFormMode() {
-        editIndex = null;
-        fileDataTerimpan = "";
+        editIndex = null; fileDataTerimpan = ""; currentFileType = "";
         document.getElementById('suratForm').reset();
-        document.getElementById('fileSurat').required = true;
-        
         document.getElementById('formTitle').innerText = "📝 INPUT DOKUMEN BARU";
         const btnKirim = document.getElementById('btnKirim');
         btnKirim.innerText = "KIRIM & TAMPILKAN";
@@ -396,40 +319,29 @@
         e.preventDefault();
         const key = localStorage.getItem('cloud_key');
         const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) { alert("Config cloud belum diisi!"); return; }
+        if(!key || !bin) { alert("Config database cloud belum diisi!"); return; }
 
         const btn = document.getElementById('btnKirim');
-        btn.disabled = true; btn.innerText = "Memproses...";
-
         const fileInput = document.getElementById('fileSurat').files[0];
         
-        const kirimKeCloud = (fileBase64, isDocument) => {
-            const noSuratKey = document.getElementById('noSurat').value;
-            
-            // JIKA FILE DOKUMEN (PDF/EXCEL) UKURANNYA TERLALU BESAR (>300KB)
-            // Sistem akan otomatis menyimpannya di browser PC Anda agar server cloud tidak memblokir koneksi
-            let finalCloudFile = fileBase64;
-            if(isDocument && fileBase64 && fileBase64.length > 300000) {
-                localStorage.setItem("local_file_" + noSuratKey, fileBase64);
-                finalCloudFile = ""; 
-            }
+        btn.disabled = true; btn.innerText = "Memproses Berkas...";
 
+        const eksekusiKirim = (finalDataText, typeLabel) => {
             const dataSurat = {
-                noSurat: noSuratKey,
+                noSurat: document.getElementById('noSurat').value,
                 tanggal: document.getElementById('tanggal').value,
                 namaSurat: document.getElementById('namaSurat').value,
                 dari: document.getElementById('dari').value,
                 tentang: document.getElementById('tentang').value,
-                fileData: finalCloudFile
+                fileData: finalDataText,
+                fileType: typeLabel
             };
 
             fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-            .then(res => {
-                if(!res.ok) throw new Error("Gagal mengambil pangkalan data dari cloud.");
-                return res.json();
-            })
+            .then(res => { if(!res.ok) throw new Error("Gagal kontak server cloud."); return res.json(); })
             .then(resData => {
                 let currentDb = Array.isArray(resData.record) ? resData.record : [];
+                currentDb = currentDb.filter(item => item && item.noSurat);
                 
                 if (editIndex !== null) { currentDb[editIndex] = dataSurat; } 
                 else { currentDb.push(dataSurat); }
@@ -440,27 +352,52 @@
                     body: JSON.stringify(currentDb)
                 });
             })
-            .then(res => {
-                if(!res.ok) throw new Error("Gagal memperbarui Cloud.");
-                return res.json();
-            })
+            .then(res => { if(!res.ok) throw new Error("Gagal memperbarui pangkalan data."); return res.json(); })
             .then(() => {
-                alert(editIndex !== null ? "Berhasil diperbarui!" : "Sukses terkirim!");
+                alert("Data Sukses Diperbarui Ke Layar TV!");
                 resetFormMode();
                 fetchFromCloud();
             })
-            .catch(err => {
-                alert("Sistem Error: " + err.message);
-            })
+            .catch(err => alert("Error Server: " + err.message))
             .finally(() => { btn.disabled = false; btn.innerText = "KIRIM & TAMPILKAN"; });
         };
 
         if (fileInput) {
-            compressImageAndProcess(fileInput, function(result, isDoc) {
-                kirimKeCloud(result, isDoc);
-            });
+            const namaFile = fileInput.name.toLowerCase();
+            
+            // JIKA FILE ADALAH EXCEL (.XLSX ATAU .XLS)
+            if(namaFile.endsWith('.xlsx') || namaFile.endsWith('.xls')) {
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(fileInput);
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheetName = workbook.SheetNames[0]; // Ambil sheet pertama
+                    const worksheet = workbook.Sheets[sheetName];
+                    
+                    // Mengubah isi excel menjadi string HTML tabel murni yang sangat enteng
+                    const htmlTableString = XLSX.utils.sheet_to_html(worksheet, { id: "excelTable", editable: false });
+                    
+                    // Modifikasi class style agar terlihat kontras saat ditampilkan
+                    const stylizedTable = htmlTableString.replace("<table>", "<table class='excel-render-table'>");
+                    eksekusiKirim(stylizedTable, "excel");
+                };
+            } 
+            // JIKA FILE ADALAH GAMBAR
+            else if(fileInput.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput);
+                reader.onload = () => eksekusiKirim(reader.result, "image");
+            } 
+            // DOKUMEN LAIN (PDF)
+            else {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput);
+                reader.onload = () => eksekusiKirim(reader.result, "pdf");
+            }
         } else {
-            kirimKeCloud(fileDataTerimpan, false);
+            // Jika dalam mode edit dan tidak mengganti file berkas fisik
+            eksekusiKirim(fileDataTerimpan, currentFileType);
         }
     });
 </script>
