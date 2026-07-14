@@ -271,53 +271,52 @@
         });
     }
 
-  // REVISI FUNGSI VIEWER AGAR MENAMPILKAN LANGSUNG TANPA DOWNLOAD
+  // PERBAIKAN ENGINE VIEWER KHUSUS EXCEL & DOKUMEN AGAR TIDAK OTOMATIS DOWNLOAD
     function openPreviewModal(index) {
         const targetSurat = databaseSurat[index];
         if(!targetSurat) return;
         
-        // Ambil data file (baik dari cloud atau local storage)
         let fileData = targetSurat.fileData;
         if(!fileData) {
             fileData = localStorage.getItem("local_file_" + targetSurat.noSurat);
         }
         
-        if(!fileData) { alert("Berkas fisik dokumen tidak ditemukan!"); return; }
+        if(!fileData) { alert("Berkas fisik tidak ditemukan / gagal sinkron!"); return; }
         
         document.getElementById('modalDocTitle').innerText = `📄 VIEWER DOKUMEN: ${targetSurat.namaSurat || ''}`;
         
         const iframe = document.getElementById('previewIframe');
         const img = document.getElementById('previewImg');
         
-        // JIKA FORMATNYA GAMBAR (PNG/JPG)
+        // JIKA FORMATNYA GAMBAR HUKUMNYA TETAP DIMUNCULKAN SECARA LANGSUNG
         if(fileData.startsWith("data:image/")) {
             iframe.style.display = "none";
             img.src = fileData;
             img.style.display = "block";
         } 
-        // JIKA FORMATNYA LINK ONLINE (Google Drive / URL Lain)
+        // JIKA FORMATNYA BERUPA TAUTAN TERTULIS (URL ONLINE)
         else if(fileData.startsWith("http")) {
             img.style.display = "none";
-            // Dibungkus menggunakan Google Docs Viewer Engine agar langsung merender Excel/PDF/Word di dalam layar
-            iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(fileData) + "&embedded=true";
+            
+            // PROTEKSI KHUSUS EXCEL/WORD: Jika tautan mengarah ke berkas dokumen, gunakan engine Microsoft Office Online agar tampil di layar
+            if(fileData.includes(".xlsx") || fileData.includes(".xls") || fileData.includes(".docx")) {
+                iframe.src = "https://view.officeapps.live.com/op/view.aspx?src=" + encodeURIComponent(fileData);
+            } else {
+                // Untuk PDF atau link dokumen umum lainnya menggunakan Google Viewer Engine
+                iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(fileData) + "&embedded=true";
+            }
+            
             iframe.style.display = "block";
         }
-        // JIKA FORMATNYA BASE64 DOKUMEN LOKAL (PDF)
+        // JIKA FORMATNYA ADALAH BASE64 ENKRIPSI LOKAL (PDF DATA)
         else {
             img.style.display = "none";
-            iframe.src = fileData; // Browser akan merender PDF viewer bawaan jika kapasitas memori mencukupi
+            iframe.src = fileData; 
             iframe.style.display = "block";
         }
         
         document.getElementById('fileModal').style.display = 'flex';
     }
-    
-    function closePreviewModal() {
-        document.getElementById('fileModal').style.display = 'none';
-        document.getElementById('previewIframe').src = ""; 
-        document.getElementById('previewImg').src = ""; 
-    }
-
     // ENGINE ALGORITMA KOMPRESI GAMBAR (Mengubah 5MB jadi 70KB secara instan)
     function compressImageAndProcess(file, callback) {
         if (!file.type.startsWith('image/')) {
