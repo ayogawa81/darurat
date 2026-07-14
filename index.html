@@ -31,7 +31,12 @@
             background: #ff3333;
             border-radius: 3px;
         }
-        /* Desain Tabel Render Excel agar tidak berantakan & bersih */
+        /* Styling khusus kalender agar senada dengan tema gelap dashboard */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(1) saturate(5) hue-rotate(320deg);
+            cursor: pointer;
+        }
+        /* Desain Tabel Render Excel agar rapi */
         .excel-table {
             width: 100%;
             border-collapse: collapse;
@@ -64,16 +69,23 @@
                 <p class="text-xs text-gray-400">Sistem Publikasi Surat & Dokumen - Anti Download Otomatis</p>
             </div>
         </div>
-        <div class="mt-2 md:mt-0 text-right">
-            <span class="text-sm font-bold text-gray-300 font-['Orbitron']" id="liveClock">Memuat Jam...</span>
+        <div class="mt-4 md:mt-0 flex items-center space-x-4">
+            <button onclick="toggleControlPanel()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-md">
+                <i class="fa-solid fa-sliders" id="panelBtnIcon"></i>
+                <span id="panelBtnText">Sembunyikan Panel</span>
+            </button>
+            <div class="text-right">
+                <span class="text-sm font-bold text-gray-300 font-['Orbitron'] block" id="liveClock">Memuat Jam...</span>
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+    <main class="flex-grow p-4 md:p-6 max-w-8xl mx-auto w-full">
         
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-500" id="mainGridContainer">
             
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-4 space-y-6 transition-all duration-500" id="controlPanelSection">
+                
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
                     <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']">
                         <i class="fa-solid fa-cloud text-xs mr-2"></i> KONEKSI DATABASE CLOUD
@@ -111,8 +123,10 @@
                         </div>
                         
                         <div>
-                            <label class="block text-xs text-gray-400 mb-1">Tanggal Surat</label>
-                            <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500">
+                            <label class="block text-xs text-gray-400 mb-1 flex items-center">
+                                <i class="fa-solid fa-calendar-days text-red-500 mr-1.5 text-[10px]"></i> Tanggal Surat (Pilih dari Kalender)
+                            </label>
+                            <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500 transition-colors duration-200">
                         </div>
 
                         <div>
@@ -149,7 +163,7 @@
 
             </div>
 
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-8 transition-all duration-500" id="monitorTableSection">
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md h-full flex flex-col justify-between">
                     <div>
                         <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center justify-between border-b border-zinc-800 pb-2 font-['Orbitron']">
@@ -213,6 +227,7 @@
         let database = [];
         let convertedFileData = ""; 
         let fileDataTerimpan = "";
+        let isPanelHidden = false; // Status awal panel terlihat
 
         document.addEventListener("DOMContentLoaded", () => {
             const savedKey = localStorage.getItem("jsonbin_key");
@@ -225,6 +240,33 @@
                 loadDatabase();
             }
         });
+
+        // FUNGSI SEMBUNYIKAN / TAMPILKAN PANEL
+        function toggleControlPanel() {
+            const gridContainer = document.getElementById("mainGridContainer");
+            const panel = document.getElementById("controlPanelSection");
+            const monitor = document.getElementById("monitorTableSection");
+            const btnIcon = document.getElementById("panelBtnIcon");
+            const btnText = document.getElementById("panelBtnText");
+
+            isPanelHidden = !isPanelHidden;
+
+            if (isPanelHidden) {
+                // Sembunyikan panel kontrol, perluas tabel ke seluruh kolom (12 kolom)
+                panel.classList.add("hidden");
+                monitor.className = "lg:col-span-12 transition-all duration-500";
+                btnIcon.className = "fa-solid fa-eye";
+                btnText.innerText = "Tampilkan Panel";
+                showToast("Panel Kontrol disembunyikan. Mode TV aktif!", "success");
+            } else {
+                // Tampilkan kembali panel kontrol, kembalikan ukuran tabel ke 8 kolom
+                panel.classList.remove("hidden");
+                monitor.className = "lg:col-span-8 transition-all duration-500";
+                btnIcon.className = "fa-solid fa-sliders";
+                btnText.innerText = "Sembunyikan Panel";
+                showToast("Panel Kontrol ditampilkan kembali.", "info");
+            }
+        }
 
         function startClock() {
             setInterval(() => {
@@ -289,7 +331,7 @@
             }
         }
 
-        // PROSES DETEKSI & PARSING ANTI-DOWNLOAD
+        // PROSES DETEKSI & PARSING BERKAS (ANTI DOWNLOAD)
         document.getElementById("fileInput").addEventListener("change", function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -309,10 +351,7 @@
                         const firstSheetName = workbook.SheetNames[0];
                         const worksheet = workbook.Sheets[firstSheetName];
                         
-                        // Buat tabel mentah tanpa tag-tag kompleks pembungkus
                         const rawHtml = XLSX.utils.sheet_to_html(worksheet, { header: '', footer: '' });
-                        
-                        // Inject class CSS buatan untuk styling rapi
                         const cleanTable = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
                         convertedFileData = cleanTable;
                         
@@ -348,7 +387,7 @@
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        const maxDim = 700; // Maksimal lebar 700px agar payload kecil
+                        const maxDim = 700;
                         let w = img.width, h = img.height;
                         if (w > maxDim || h > maxDim) {
                             if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
@@ -357,7 +396,6 @@
                         canvas.width = w; canvas.height = h;
                         ctx.drawImage(img, 0, 0, w, h);
                         
-                        // Simpan sebagai Base64 terkompresi rendah (JPEG 50%)
                         convertedFileData = `<div class="flex justify-center"><img src="${canvas.toDataURL('image/jpeg', 0.5)}" class="max-w-full rounded shadow"></div>`;
                         
                         loader.classList.add("hidden");
@@ -376,7 +414,6 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
-            
             const fileFinal = convertedFileData || fileDataTerimpan;
 
             const suratBaru = {
@@ -385,7 +422,7 @@
                 namaSurat: document.getElementById("namaSurat").value.trim(),
                 dari: document.getElementById("asalSurat").value.trim(),
                 tentang: document.getElementById("perihalSurat").value.trim(),
-                fileData: fileFinal // Murni HTML atau Image Base64 yang sudah dibersihkan
+                fileData: fileFinal
             };
 
             if (index === -1) {
@@ -438,7 +475,6 @@
             const body = document.getElementById("modalBody");
             body.innerHTML = ""; 
 
-            // Jika tidak ada data file terlampir
             if (!surat.fileData || surat.fileData.trim() === "") {
                 body.innerHTML = `
                     <div class="text-center py-12 text-zinc-600">
@@ -447,9 +483,7 @@
                         <p class="text-xs text-gray-500 mt-1">Harap edit dokumen ini dan unggah ulang berkasnya.</p>
                     </div>`;
             } 
-            // Jika data adalah HTML tabel (Excel) atau format konversi Word
             else {
-                // Tampilkan info tambahan di atas preview untuk detail arsip surat
                 body.innerHTML = `
                     <div class="max-w-4xl mx-auto">
                         <div class="mb-4 bg-zinc-100 p-4 rounded text-xs text-zinc-800 grid grid-cols-1 md:grid-cols-2 gap-3 border border-zinc-300">
@@ -474,6 +508,11 @@
         function editDocument(index) {
             const surat = database[index];
             if (!surat) return;
+
+            // Pastikan panel kontrol terbuka saat mengedit agar form terlihat
+            if (isPanelHidden) {
+                toggleControlPanel();
+            }
 
             document.getElementById("editIndex").value = index;
             document.getElementById("noSurat").value = surat.noSurat;
