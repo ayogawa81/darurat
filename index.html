@@ -28,7 +28,7 @@
                 <h1 class="text-xl md:text-2xl font-bold tracking-widest text-red-500 neon-text-red font-['Orbitron']">
                     LIVE MONITOR TV - SLOG KORPASGAT
                 </h1>
-                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Direct Local Upload Mode)</p>
+                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Optimized Storage Mode)</p>
             </div>
         </div>
         <div class="text-right">
@@ -48,7 +48,6 @@
                     </h2>
                     <form id="suratForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="-1">
-                        <input type="hidden" id="fileIdStorage" value="">
                         
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Jenis / No. Surat</label>
@@ -76,8 +75,9 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-red-400 mb-1"><i class="fa-solid fa-file-arrow-up mr-1"></i> Unggah Berkas Berkas (Excel/Word/PDF/Gambar)</label>
-                            <input type="file" id="localFileInput" class="w-full bg-zinc-800 border border-zinc-700 rounded p-1.5 text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer" onchange="processFile()">
+                            <label class="block text-xs font-bold text-red-400 mb-1"><i class="fa-solid fa-link mr-1"></i> Tempel Link Berkas / URL Gambar</label>
+                            <input type="text" id="fileLinkInput" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Paste link file, gambar, atau dokumen di sini...">
+                            <p class="text-[10px] text-zinc-500 mt-1">Tips: Anda bisa upload berkas gratis di <a href="https://imgbb.com/" target="_blank" class="text-red-400 underline">imgbb.com</a> atau cloud mana saja lalu salin linknya ke sini.</p>
                         </div>
 
                         <div class="flex space-x-2 pt-2">
@@ -155,9 +155,6 @@
         const MASTER_KEY = "$2a$10$hM6Nl/LpLYBsi5RYUkb.W.5LpOGi2/RmT.n0J9WUooMtYv";
 
         let database = [];
-        let tempFileBase64 = "";
-        let tempFileName = "";
-        let tempFileMime = "";
 
         document.addEventListener("DOMContentLoaded", () => {
             startClock();
@@ -169,19 +166,6 @@
                 const now = new Date();
                 document.getElementById("liveClock").innerText = now.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'medium' });
             }, 1000);
-        }
-
-        function processFile() {
-            const file = document.getElementById("localFileInput").files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempFileBase64 = e.target.result;
-                    tempFileName = file.name;
-                    tempFileMime = file.type || "application/octet-stream";
-                };
-                reader.readAsDataURL(file);
-            }
         }
 
         async function loadDatabase() {
@@ -219,18 +203,7 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
-            let finalStorageId = document.getElementById("fileIdStorage").value || "file_" + Date.now();
-            let nameOfFile = tempFileName || "Berkas Dokumen";
-
-            if (tempFileBase64 !== "") {
-                localStorage.setItem(finalStorageId, tempFileBase64);
-            } else if (index === -1) {
-                showToast("Harap pilih file terlebih dahulu!", "error");
-                return;
-            } else {
-                finalStorageId = database[index].fileData;
-                nameOfFile = database[index].fileNameReal;
-            }
+            let inputUrl = document.getElementById("fileLinkInput").value.trim();
 
             const suratBaru = {
                 noSurat: document.getElementById("noSurat").value.trim(),
@@ -238,9 +211,7 @@
                 namaSurat: document.getElementById("namaSurat").value.trim(),
                 dari: document.getElementById("asalSurat").value.trim(),
                 tentang: document.getElementById("perihalSurat").value.trim(),
-                fileData: finalStorageId,
-                fileNameReal: nameOfFile,
-                mimeType: tempFileMime || (database[index] ? database[index].mimeType : "")
+                fileData: inputUrl
             };
 
             if (index === -1) {
@@ -260,7 +231,7 @@
             database = database.filter(item => item && item.noSurat);
 
             if (database.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500">Database kosong.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500">Belum ada data surat.</td></tr>`;
                 return;
             }
 
@@ -289,43 +260,20 @@
 
         function viewDocument(index) {
             const surat = database[index];
-            if (!surat) return;
+            if (!surat || !surat.fileData) return;
 
             document.getElementById("modalSuratTitle").innerText = `VIEWER MONITOR TV: ${surat.namaSurat.toUpperCase()}`;
             const body = document.getElementById("modalBody");
             
-            const base64Content = localStorage.getItem(surat.fileData);
-            if (!base64Content) {
-                body.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
-                        <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-5xl mb-4"></i>
-                        <h4 class="text-md font-bold mb-1">File Tidak Terbaca di Layar Ini</h4>
-                        <p class="text-xs text-gray-400 max-w-sm">Pastikan Anda membuka/menginput file ini dari perangkat komputer/TV yang sama agar memori lokalnya sinkron.</p>
-                    </div>`;
-                document.getElementById("viewerModal").classList.remove("hidden");
-                return;
-            }
+            let targetUrl = surat.fileData;
+            const lowUrl = targetUrl.toLowerCase();
 
-            const isImage = base64Content.startsWith("data:image/") || (surat.mimeType && surat.mimeType.startsWith("image/"));
-            const isPdf = base64Content.startsWith("data:application/pdf") || (surat.mimeType && surat.mimeType.includes("pdf"));
-
-            if (isImage) {
-                body.innerHTML = `<div class="w-full h-full flex justify-center items-center bg-zinc-950 p-4"><img src="${base64Content}" class="max-w-full max-h-full object-contain rounded" /></div>`;
-            } else if (isPdf) {
-                body.innerHTML = `<iframe src="${base64Content}" class="w-full h-full border-none"></iframe>`;
+            if (lowUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/) != null) {
+                body.innerHTML = `<div class="w-full h-full flex justify-center items-center bg-zinc-950 p-4"><img src="${targetUrl}" class="max-w-full max-h-full object-contain rounded" /></div>`;
             } else {
-                body.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
-                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md shadow-2xl">
-                            <i class="fa-solid fa-file-excel text-green-500 text-6xl mb-4"></i>
-                            <h4 class="text-lg font-bold mb-2">${surat.fileNameReal || 'Dokumen Office'}</h4>
-                            <p class="text-xs text-gray-400 mb-6">Berkas Word/Excel siap dibuka.</p>
-                            <a href="${base64Content}" download="${surat.fileNameReal || 'dokumen'}" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition duration-200">
-                                <i class="fa-solid fa-download mr-1"></i> BUKA / DOWNLOAD BERKAS
-                            </a>
-                        </div>
-                    </div>`;
+                body.innerHTML = `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(targetUrl)}&embedded=true" class="w-full h-full border-none"></iframe>`;
             }
+
             document.getElementById("viewerModal").classList.remove("hidden");
         }
 
@@ -344,11 +292,7 @@
             document.getElementById("namaSurat").value = surat.namaSurat;
             document.getElementById("asalSurat").value = surat.dari;
             document.getElementById("perihalSurat").value = surat.tentang;
-            document.getElementById("fileIdStorage").value = surat.fileData;
-
-            tempFileBase64 = localStorage.getItem(surat.fileData) || "";
-            tempFileName = surat.fileNameReal || "";
-            tempFileMime = surat.mimeType || "";
+            document.getElementById("fileLinkInput").value = surat.fileData || "";
 
             document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-xs font-bold transition duration-200";
             document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> UPDATE DATA`;
@@ -357,8 +301,6 @@
 
         async function deleteDocument(index) {
             if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-                const surat = database[index];
-                if(surat) localStorage.removeItem(surat.fileData);
                 database.splice(index, 1);
                 await saveDatabaseToCloud();
             }
@@ -367,10 +309,6 @@
         function resetForm() {
             document.getElementById("suratForm").reset();
             document.getElementById("editIndex").value = "-1";
-            document.getElementById("fileIdStorage").value = "";
-            tempFileBase64 = "";
-            tempFileName = "";
-            tempFileMime = "";
             document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200";
             document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> TAYANGKAN DI TV`;
             document.getElementById("cancelEditBtn").classList.add("hidden");
