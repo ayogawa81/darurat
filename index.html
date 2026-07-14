@@ -6,10 +6,8 @@
     <title>Live Monitor TV - Slog KORPASGAT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
-        
         body {
             background-color: #0d0d0d;
             color: #e0e0e0;
@@ -18,92 +16,47 @@
         .neon-text-red {
             text-shadow: 0 0 5px #ff3333, 0 0 10px #ff3333;
         }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ff3333;
-            border-radius: 3px;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1) sepia(1) saturate(5) hue-rotate(320deg);
-            cursor: pointer;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-    <header class="border-b-2 border-red-600 bg-black p-4 flex flex-col md:flex-row justify-between items-center shadow-lg">
+    <!-- HEADER BAR -->
+    <header class="border-b-2 border-red-600 bg-black p-4 flex justify-between items-center shadow-lg">
         <div class="flex items-center space-x-3">
             <i class="fa-solid fa-tv text-red-600 text-2xl animate-pulse"></i>
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-widest text-red-500 neon-text-red font-['Orbitron']">
                     LIVE MONITOR TV - SLOG KORPASGAT
                 </h1>
-                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Link Cloud & File Lokal)</p>
+                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Direct Local Upload Mode)</p>
             </div>
         </div>
-        <div class="mt-4 md:mt-0 flex items-center space-x-4">
-            <button onclick="toggleControlPanel()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-md">
-                <i class="fa-solid fa-sliders" id="panelBtnIcon"></i>
-                <span id="panelBtnText">Sembunyikan Panel</span>
-            </button>
-            <div class="text-right">
-                <span class="text-sm font-bold text-gray-300 font-['Orbitron'] block" id="liveClock">Memuat Jam...</span>
-            </div>
+        <div class="text-right">
+            <span class="text-sm font-bold text-gray-300 font-['Orbitron'] block" id="liveClock">Memuat Jam...</span>
         </div>
     </header>
 
+    <!-- MAIN CONTENT AREA -->
     <main class="flex-grow p-4 md:p-6 max-w-8xl mx-auto w-full">
-        
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-500" id="mainGridContainer">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="lg:col-span-4 space-y-6 transition-all duration-500" id="controlPanelSection">
-                
+            <!-- FORM INPUT (KIRI) -->
+            <div class="lg:col-span-4 space-y-6">
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
                     <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']">
-                        <i class="fa-solid fa-cloud text-xs mr-2"></i> KONEKSI DATABASE CLOUD
-                    </h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Master Key</label>
-                            <input type="password" id="masterKey" class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan X-Master-Key...">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Bin ID</label>
-                            <input type="text" id="binId" class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Masukkan Bin ID...">
-                        </div>
-                        <div class="flex space-x-2 pt-1">
-                            <button onclick="saveConfig()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200">
-                                <i class="fa-solid fa-floppy-disk mr-1"></i> SIMPAN CONFIG
-                            </button>
-                            <button onclick="loadDatabase()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-xs font-bold transition duration-200">
-                                <i class="fa-solid fa-sync mr-1"></i> REFRESH DATA
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
-                    <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']" id="formTitle">
                         <i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN
                     </h2>
                     <form id="suratForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
                         <input type="hidden" id="editIndex" value="-1">
+                        <input type="hidden" id="fileIdStorage" value="">
                         
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Jenis / No. Surat</label>
-                            <input type="text" id="noSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Biasa / Rahasia / No. Surat">
+                            <input type="text" id="noSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: No. Surat / Berkas">
                         </div>
                         
                         <div>
-                            <label class="block text-xs text-gray-400 mb-1 flex items-center">
-                                <i class="fa-solid fa-calendar-days text-red-500 mr-1.5 text-[10px]"></i> Tanggal Surat
-                            </label>
+                            <label class="block text-xs text-gray-400 mb-1">Tanggal Surat</label>
                             <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500">
                         </div>
 
@@ -119,23 +72,12 @@
 
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Tentang / Perihal</label>
-                            <textarea id="perihalSurat" rows="2" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi perihal singkat..."></textarea>
+                            <textarea id="perihalSurat" rows="2" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi singkat..."></textarea>
                         </div>
 
-                        <div class="border border-zinc-800 p-3 rounded bg-black/50 space-y-3">
-                            <span class="block text-xs font-bold text-red-400"><i class="fa-solid fa-paperclip mr-1"></i> METODE LAMPIRAN BERKAS:</span>
-                            
-                            <div>
-                                <label class="block text-[11px] text-gray-400 mb-1">Opsi 1: Link Google Drive / Sheets / Cloud URL</label>
-                                <input type="url" id="fileUrlInput" class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="https://drive.google.com/..." oninput="clearOnConflict('url')">
-                            </div>
-
-                            <div class="text-center text-[10px] text-zinc-600 font-bold">— ATAU —</div>
-
-                            <div>
-                                <label class="block text-[11px] text-gray-400 mb-1">Opsi 2: Unggah Berkas dari Komputer (Max 2MB)</label>
-                                <input type="file" id="localFileInput" class="w-full bg-zinc-800 border border-zinc-700 rounded p-1.5 text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-bold file:bg-red-650 file:text-white hover:file:bg-red-700 cursor-pointer" onchange="clearOnConflict('file')">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-red-400 mb-1"><i class="fa-solid fa-file-arrow-up mr-1"></i> Unggah Berkas Berkas (Excel/Word/PDF/Gambar)</label>
+                            <input type="file" id="localFileInput" class="w-full bg-zinc-800 border border-zinc-700 rounded p-1.5 text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer" onchange="processFile()">
                         </div>
 
                         <div class="flex space-x-2 pt-2">
@@ -148,10 +90,10 @@
                         </div>
                     </form>
                 </div>
-
             </div>
 
-            <div class="lg:col-span-8 transition-all duration-500" id="monitorTableSection">
+            <!-- MONITOR DAFTAR SURAT (KANAN) -->
+            <div class="lg:col-span-8">
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md h-full flex flex-col justify-between">
                     <div>
                         <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center justify-between border-b border-zinc-800 pb-2 font-['Orbitron']">
@@ -167,31 +109,27 @@
                                         <th class="py-3 px-2 font-semibold">Tanggal</th>
                                         <th class="py-3 px-2 font-semibold">Nama Surat</th>
                                         <th class="py-3 px-2 font-semibold">Dari</th>
-                                        <th class="py-3 px-2 font-semibold text-center">Aksi Berkas</th>
+                                        <th class="py-3 px-2 text-center font-semibold">Aksi Berkas</th>
                                     </tr>
                                 </thead>
                                 <tbody id="suratTableBody" class="divide-y divide-zinc-800">
                                     <tr>
-                                        <td colspan="5" class="py-8 text-center text-zinc-500">
-                                            <i class="fa-solid fa-database mb-2 text-xl block"></i>
-                                            <p>Data kosong atau belum terhubung dengan Cloud.</p>
-                                        </td>
+                                        <td colspan="5" class="py-8 text-center text-zinc-500">Belum ada data surat.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 flex justify-between items-center font-['Orbitron']">
-                        <span>STAFLOG KORPASGAT &copy; 2026</span>
+                    <div class="mt-4 pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 font-['Orbitron']">
+                        STAFLOG KORPASGAT &copy; 2026
                     </div>
                 </div>
             </div>
 
         </div>
-
     </main>
 
+    <!-- VIEWER MODAL -->
     <div id="viewerModal" class="fixed inset-0 bg-black bg-opacity-95 hidden z-50 flex flex-col items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 w-full max-w-6xl h-[92vh] rounded-lg flex flex-col overflow-hidden shadow-2xl">
             <div class="bg-black border-b border-zinc-800 p-4 flex justify-between items-center">
@@ -203,178 +141,95 @@
                     TUTUP X
                 </button>
             </div>
-            <div class="flex-grow bg-white text-black" id="modalBody">
-                </div>
+            <div class="flex-grow bg-white" id="modalBody"></div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 transition-all duration-300 font-bold">
-        <span id="toastMessage">Sistem Siap!</span>
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 font-bold transition-all duration-300">
+        <span id="toastMessage"></span>
     </div>
 
     <script>
+        const BIN_ID = "6a559ab1f5f4af5e298b6717";
+        const MASTER_KEY = "$2a$10$hM6Nl/LpLYBsi5RYUkb.W.5LpOGi2/RmT.n0J9WUooMtYv";
+
         let database = [];
-        let isPanelHidden = false;
-        let localFileBase64 = ""; 
-        let localFileName = "";
-        let localFileMime = "";
+        let tempFileBase64 = "";
+        let tempFileName = "";
+        let tempFileMime = "";
 
         document.addEventListener("DOMContentLoaded", () => {
-            const savedKey = localStorage.getItem("jsonbin_key");
-            const savedBin = localStorage.getItem("jsonbin_bin");
-            if (savedKey) document.getElementById("masterKey").value = savedKey;
-            if (savedBin) document.getElementById("binId").value = savedBin;
-            
             startClock();
-            if (savedKey && savedBin) {
-                loadDatabase();
-            }
+            loadDatabase();
         });
-
-        // Validasi dan pembersihan konflik input
-        function clearOnConflict(type) {
-            if (type === 'url') {
-                document.getElementById("localFileInput").value = "";
-                localFileBase64 = "";
-                localFileName = "";
-                localFileMime = "";
-            } else if (type === 'file') {
-                document.getElementById("fileUrlInput").value = "";
-                const file = document.getElementById("localFileInput").files[0];
-                if (file) {
-                    // Batasi ukuran file lokal maksimal 2MB agar JSONBin tidak error
-                    if (file.size > 2 * 1024 * 1024) {
-                        showToast("File terlalu besar! Maksimal ukuran file lokal adalah 2MB.", "error");
-                        document.getElementById("localFileInput").value = "";
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        localFileBase64 = e.target.result;
-                        localFileName = file.name;
-                        localFileMime = file.type || "application/octet-stream";
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        }
-
-        function toggleControlPanel() {
-            const panel = document.getElementById("controlPanelSection");
-            const monitor = document.getElementById("monitorTableSection");
-            const btnIcon = document.getElementById("panelBtnIcon");
-            const btnText = document.getElementById("panelBtnText");
-
-            isPanelHidden = !isPanelHidden;
-
-            if (isPanelHidden) {
-                panel.classList.add("hidden");
-                monitor.className = "lg:col-span-12 transition-all duration-500";
-                btnIcon.className = "fa-solid fa-eye";
-                btnText.innerText = "Tampilkan Panel";
-                showToast("Panel Kontrol disembunyikan. Mode TV aktif!", "success");
-            } else {
-                panel.classList.remove("hidden");
-                monitor.className = "lg:col-span-8 transition-all duration-500";
-                btnIcon.className = "fa-solid fa-sliders";
-                btnText.innerText = "Sembunyikan Panel";
-                showToast("Panel Kontrol ditampilkan kembali.", "info");
-            }
-        }
 
         function startClock() {
             setInterval(() => {
                 const now = new Date();
-                document.getElementById("liveClock").innerText = now.toLocaleString('id-ID', {
-                    dateStyle: 'medium',
-                    timeStyle: 'medium'
-                });
+                document.getElementById("liveClock").innerText = now.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'medium' });
             }, 1000);
         }
 
-        function saveConfig() {
-            const key = document.getElementById("masterKey").value.trim();
-            const bin = document.getElementById("binId").value.trim();
-            if (!key || !bin) {
-                showToast("Harap isi Master Key dan Bin ID!", "error");
-                return;
+        function processFile() {
+            const file = document.getElementById("localFileInput").files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempFileBase64 = e.target.result;
+                    tempFileName = file.name;
+                    tempFileMime = file.type || "application/octet-stream";
+                };
+                reader.readAsDataURL(file);
             }
-            localStorage.setItem("jsonbin_key", key);
-            localStorage.setItem("jsonbin_bin", bin);
-            showToast("Konfigurasi disimpan!", "success");
-            loadDatabase();
         }
 
         async function loadDatabase() {
-            const key = localStorage.getItem("jsonbin_key");
-            const bin = localStorage.getItem("jsonbin_bin");
-            if (!key || !bin) return;
-
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
-                    headers: { "X-Master-Key": key }
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { "X-Master-Key": MASTER_KEY }
                 });
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 database = Array.isArray(data.record) ? data.record : [];
                 renderTable();
             } catch (err) {
-                showToast("Koneksi gagal atau Bin ID salah!", "error");
+                showToast("Gagal memuat data dari cloud!", "error");
             }
         }
 
         async function saveDatabaseToCloud() {
-            const key = localStorage.getItem("jsonbin_key");
-            const bin = localStorage.getItem("jsonbin_bin");
-            if (!key || !bin) return;
-
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}?versioning=false`, {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}?versioning=false`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-Master-Key": key
+                        "X-Master-Key": MASTER_KEY
                     },
                     body: JSON.stringify(database)
                 });
                 if (!res.ok) throw new Error();
-                showToast("Data Berhasil Disinkronkan!", "success");
+                showToast("Data Berhasil Diperbarui!", "success");
                 renderTable();
             } catch (err) {
-                showToast("Gagal menyimpan ke Cloud! Pastikan ukuran berkas tidak terlalu besar.", "error");
+                showToast("Gagal sinkronisasi ke Cloud!", "error");
             }
         }
 
         async function handleFormSubmit(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
-            const rawUrl = document.getElementById("fileUrlInput").value.trim();
-            
-            let finalFileData = "";
-            let fileTypeIndicator = "link";
-            let nameOfFile = "";
+            let finalStorageId = document.getElementById("fileIdStorage").value || "file_" + Date.now();
+            let nameOfFile = tempFileName || "Berkas Dokumen";
 
-            if (rawUrl !== "") {
-                finalFileData = rawUrl;
-                if (rawUrl.includes("drive.google.com")) {
-                    finalFileData = rawUrl.replace(/\/view\?usp=sharing|\/view/g, "/preview");
-                }
-                fileTypeIndicator = "link";
-                nameOfFile = "Link Dokumen Cloud";
-            } else if (localFileBase64 !== "") {
-                finalFileData = localFileBase64;
-                fileTypeIndicator = "local";
-                nameOfFile = localFileName || "Berkas Lokal";
+            if (tempFileBase64 !== "") {
+                localStorage.setItem(finalStorageId, tempFileBase64);
+            } else if (index === -1) {
+                showToast("Harap pilih file terlebih dahulu!", "error");
+                return;
             } else {
-                if (index === -1) {
-                    showToast("Masukkan Link URL atau pilih Berkas Lokal terlebih dahulu!", "error");
-                    return;
-                } else {
-                    finalFileData = database[index].fileData;
-                    fileTypeIndicator = database[index].fileType || "link";
-                    nameOfFile = database[index].fileNameReal || "Berkas Sebelumnya";
-                }
+                finalStorageId = database[index].fileData;
+                nameOfFile = database[index].fileNameReal;
             }
 
             const suratBaru = {
@@ -383,10 +238,9 @@
                 namaSurat: document.getElementById("namaSurat").value.trim(),
                 dari: document.getElementById("asalSurat").value.trim(),
                 tentang: document.getElementById("perihalSurat").value.trim(),
-                fileData: finalFileData,
-                fileType: fileTypeIndicator,
+                fileData: finalStorageId,
                 fileNameReal: nameOfFile,
-                mimeType: localFileMime
+                mimeType: tempFileMime || (database[index] ? database[index].mimeType : "")
             };
 
             if (index === -1) {
@@ -403,23 +257,18 @@
             const tbody = document.getElementById("suratTableBody");
             document.getElementById("totalSurat").innerText = `${database.length} Surat`;
             
-            // Hapus objek kosong {} jika ada di dalam array database (mencegah error dari bin lama)
             database = database.filter(item => item && item.noSurat);
 
             if (database.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500 font-semibold">Database kosong / offline.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500">Database kosong.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = database.map((surat, index) => {
-                const iconType = surat.fileType === 'local' ? 'fa-laptop-code text-blue-400' : 'fa-cloud text-green-400';
                 return `
                     <tr class="hover:bg-zinc-800 border-b border-zinc-800 text-gray-200">
-                        <td class="py-3 px-2 font-bold flex items-center space-x-1.5">
-                            <i class="fa-solid ${iconType} text-[10px]" title="${surat.fileType === 'local' ? 'File Lokal' : 'Link Cloud'}"></i>
-                            <span>${surat.noSurat}</span>
-                        </td>
-                        <td class="py-3 px-2 text-xs">${surat.tanggal}</td>
+                        <td class="py-3 px-2 font-bold text-red-400">${surat.noSurat}</td>
+                        <td class="py-3 px-2 text-gray-400">${surat.tanggal}</td>
                         <td class="py-3 px-2">${surat.namaSurat}</td>
                         <td class="py-3 px-2 text-zinc-400 font-semibold">${surat.dari || "-"}</td>
                         <td class="py-3 px-2 text-center flex items-center justify-center space-x-2">
@@ -444,56 +293,38 @@
 
             document.getElementById("modalSuratTitle").innerText = `VIEWER MONITOR TV: ${surat.namaSurat.toUpperCase()}`;
             const body = document.getElementById("modalBody");
-            const fileTarget = surat.fileData ? surat.fileData.trim() : "";
-
-            if (!fileTarget) {
+            
+            const base64Content = localStorage.getItem(surat.fileData);
+            if (!base64Content) {
                 body.innerHTML = `
-                    <div class="text-center py-20 text-zinc-600 bg-zinc-900 h-full">
-                        <i class="fa-solid fa-circle-exclamation text-4xl mb-2 text-yellow-500"></i>
-                        <p class="font-bold text-lg">Dokumen lampiran kosong.</p>
+                    <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
+                        <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-5xl mb-4"></i>
+                        <h4 class="text-md font-bold mb-1">File Tidak Terbaca di Layar Ini</h4>
+                        <p class="text-xs text-gray-400 max-w-sm">Pastikan Anda membuka/menginput file ini dari perangkat komputer/TV yang sama agar memori lokalnya sinkron.</p>
                     </div>`;
+                document.getElementById("viewerModal").classList.remove("hidden");
+                return;
+            }
+
+            const isImage = base64Content.startsWith("data:image/") || (surat.mimeType && surat.mimeType.startsWith("image/"));
+            const isPdf = base64Content.startsWith("data:application/pdf") || (surat.mimeType && surat.mimeType.includes("pdf"));
+
+            if (isImage) {
+                body.innerHTML = `<div class="w-full h-full flex justify-center items-center bg-zinc-950 p-4"><img src="${base64Content}" class="max-w-full max-h-full object-contain rounded" /></div>`;
+            } else if (isPdf) {
+                body.innerHTML = `<iframe src="${base64Content}" class="w-full h-full border-none"></iframe>`;
             } else {
-                if (surat.fileType === "local") {
-                    const isImage = fileTarget.startsWith("data:image/") || (surat.mimeType && surat.mimeType.startsWith("image/"));
-                    const isPdf = fileTarget.startsWith("data:application/pdf") || (surat.mimeType && surat.mimeType.includes("pdf"));
-
-                    if (isImage) {
-                        body.innerHTML = `
-                            <div class="w-full h-full flex justify-center items-center bg-zinc-950 p-4">
-                                <img src="${fileTarget}" class="max-w-full max-h-full object-contain shadow-lg rounded" />
-                            </div>`;
-                    } else if (isPdf) {
-                        body.innerHTML = `<iframe src="${fileTarget}" class="w-full h-full border-none" style="background-color:#ffffff;"></iframe>`;
-                    } else {
-                        // UNTUK LOKAL EXCEL / WORD: Tampilkan layar informatif & tombol aksi agar browser TIDAK otomatis download looping di TV!
-                        body.innerHTML = `
-                            <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
-                                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md shadow-2xl">
-                                    <i class="fa-solid fa-file-excel text-green-500 text-6xl mb-4 animate-bounce"></i>
-                                    <h4 class="text-lg font-bold font-['Orbitron'] mb-2">${surat.fileNameReal || 'Dokumen Kantor'}</h4>
-                                    <p class="text-xs text-gray-400 mb-6">Berkas ini diunggah secara lokal. Browser TV/Monitor tidak dapat merender berkas biner secara langsung tanpa pemicu unduhan otomatis.</p>
-                                    
-                                    <div class="bg-zinc-950 p-4 rounded text-left mb-6 border border-zinc-800 text-xs">
-                                        <p class="mb-1"><span class="text-gray-500">No. Surat:</span> ${surat.noSurat}</p>
-                                        <p class="mb-1"><span class="text-gray-500">Dari:</span> ${surat.dari}</p>
-                                        <p class="mb-1"><span class="text-gray-500">Perihal:</span> ${surat.tentang}</p>
-                                    </div>
-
-                                    <a href="${fileTarget}" download="${surat.fileNameReal || 'dokumen'}" class="inline-flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition duration-200">
-                                        <i class="fa-solid fa-download"></i>
-                                        <span>BUKA / DOWNLOAD BERKAS</span>
-                                    </a>
-                                </div>
-                            </div>`;
-                    }
-                } else {
-                    // JIKA LINK CLOUD -> Buka menggunakan eksternal Google Viewer Engine secara mulus
-                    let embedUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileTarget)}&embedded=true`;
-                    if (fileTarget.includes("drive.google.com") && fileTarget.includes("/preview")) {
-                        embedUrl = fileTarget;
-                    }
-                    body.innerHTML = `<iframe src="${embedUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>`;
-                }
+                body.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md shadow-2xl">
+                            <i class="fa-solid fa-file-excel text-green-500 text-6xl mb-4"></i>
+                            <h4 class="text-lg font-bold mb-2">${surat.fileNameReal || 'Dokumen Office'}</h4>
+                            <p class="text-xs text-gray-400 mb-6">Berkas Word/Excel siap dibuka.</p>
+                            <a href="${base64Content}" download="${surat.fileNameReal || 'dokumen'}" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition duration-200">
+                                <i class="fa-solid fa-download mr-1"></i> BUKA / DOWNLOAD BERKAS
+                            </a>
+                        </div>
+                    </div>`;
             }
             document.getElementById("viewerModal").classList.remove("hidden");
         }
@@ -507,36 +338,27 @@
             const surat = database[index];
             if (!surat) return;
 
-            if (isPanelHidden) toggleControlPanel();
-
             document.getElementById("editIndex").value = index;
             document.getElementById("noSurat").value = surat.noSurat;
             document.getElementById("tanggalSurat").value = surat.tanggal;
             document.getElementById("namaSurat").value = surat.namaSurat;
             document.getElementById("asalSurat").value = surat.dari;
             document.getElementById("perihalSurat").value = surat.tentang;
+            document.getElementById("fileIdStorage").value = surat.fileData;
 
-            if (surat.fileType === "local") {
-                document.getElementById("fileUrlInput").value = "";
-                localFileBase64 = surat.fileData;
-                localFileName = surat.fileNameReal || "";
-                localFileMime = surat.mimeType || "";
-            } else {
-                document.getElementById("fileUrlInput").value = surat.fileData || "";
-                document.getElementById("localFileInput").value = "";
-                localFileBase64 = "";
-                localFileName = "";
-                localFileMime = "";
-            }
+            tempFileBase64 = localStorage.getItem(surat.fileData) || "";
+            tempFileName = surat.fileNameReal || "";
+            tempFileMime = surat.mimeType || "";
 
-            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-edit text-xs mr-2 text-yellow-500 animate-pulse"></i> EDIT MODE SURAT`;
             document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-xs font-bold transition duration-200";
-            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> UPDATE BERKAS`;
+            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> UPDATE DATA`;
             document.getElementById("cancelEditBtn").classList.remove("hidden");
         }
 
         async function deleteDocument(index) {
-            if (confirm("Apakah Anda yakin ingin menghapus dokumen ini dari monitor TV?")) {
+            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                const surat = database[index];
+                if(surat) localStorage.removeItem(surat.fileData);
                 database.splice(index, 1);
                 await saveDatabaseToCloud();
             }
@@ -545,11 +367,10 @@
         function resetForm() {
             document.getElementById("suratForm").reset();
             document.getElementById("editIndex").value = "-1";
-            localFileBase64 = "";
-            localFileName = "";
-            localFileMime = "";
-            
-            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN`;
+            document.getElementById("fileIdStorage").value = "";
+            tempFileBase64 = "";
+            tempFileName = "";
+            tempFileMime = "";
             document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200";
             document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> TAYANGKAN DI TV`;
             document.getElementById("cancelEditBtn").classList.add("hidden");
@@ -557,14 +378,11 @@
 
         function showToast(msg, type = "info") {
             const toast = document.getElementById("toast");
-            const toastMsg = document.getElementById("toastMessage");
-            toastMsg.innerText = msg;
-            
+            document.getElementById("toastMessage").innerText = msg;
             toast.className = "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 block";
-            if (type === "success") toast.className = "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 block bg-green-650";
-            else if (type === "error") toast.className = "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 block bg-red-600";
-            else if (type === "info") toast.className = "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 block bg-blue-650";
-            
+            if (type === "success") toast.classList.add("bg-green-600");
+            else if (type === "error") toast.classList.add("bg-red-600");
+            else toast.classList.add("bg-blue-600");
             setTimeout(() => { toast.classList.add("hidden"); }, 4000);
         }
     </script>
