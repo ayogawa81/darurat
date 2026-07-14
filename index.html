@@ -109,3 +109,308 @@
             padding: 12px 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        .modal-title { font-weight: bold; color: #ff4d4d; font-size: 16px; }
+        .btn-close-modal {
+            background: #d9534f; color: white; border: none; padding: 6px 14px;
+            font-weight: bold; border-radius: 4px; cursor: pointer;
+        }
+        .btn-close-modal:hover { background: #c9302c; }
+        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
+        .modal-body iframe { width: 100%; height: 100%; border: none; }
+
+        /* FORM STYLE DI DALAM POPUP */
+        .form-group { margin-bottom: 14px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #bbb; font-size: 13px; }
+        input[type="text"], input[type="date"], textarea, input[type="file"] {
+            width: 100%; padding: 10px; border: 1px solid #333; background-color: #2a2a2a; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 13px;
+        }
+        textarea { height: 70px; resize: none; }
+        .btn-action { width: 100%; padding: 12px; background-color: #ff4d4d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-action:hover { background-color: #cc3333; }
+        .btn-edit-mode { background-color: #f0ad4e !important; color: #121212 !important; }
+        .btn-cancel { background: #555; margin-top: 6px; }
+        
+        /* SETTING MINI DI DALAM POPUP KONTROL */
+        .setting-box { background: #151515; padding: 15px; border-radius: 6px; border: 1px solid #333; margin-top: 20px; }
+        .setting-box h4 { margin: 0 0 10px 0; color: #aaa; font-size: 13px; }
+        .btn-sync-mini { padding: 6px 12px; background: #444; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 12px; width: 48%; margin-top: 5px;}
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <h2>🖥️ LIVE MONITOR TV SURAT DARURAT</h2>
+            <button class="btn-gear" onclick="openControlModal()">⚙️ PANEL KONTROL</button>
+        </div>
+        <div id="clock"></div>
+    </div>
+
+    <div class="panel-monitor">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No. Surat</th>
+                        <th>Tanggal</th>
+                        <th>Nama Surat</th>
+                        <th>Dari</th>
+                        <th>Tentang / Perihal</th>
+                        <th>Aksi Berkas</th>
+                    </tr>
+                </thead>
+                <tbody id="tvTableBody">
+                    <tr><td colspan="6" style="text-align:center; color:#888;">Menunggu data dari cloud online...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="controlModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="formTitle">📝 INPUT DOKUMEN BARU</div>
+                <button class="btn-close-modal" onclick="closeControlModal()">TUTUP X</button>
+            </div>
+            <div class="modal-body">
+                <form id="suratForm">
+                    <div class="form-group"><label>No. Surat :</label><input type="text" id="noSurat" required placeholder="Contoh: 01/DRT/2026"></div>
+                    <div class="form-group"><label>Tanggal Surat :</label><input type="date" id="tanggal" required></div>
+                    <div class="form-group"><label>Nama Surat :</label><input type="text" id="namaSurat" required placeholder="Judul arsip berkas"></div>
+                    <div class="form-group"><label>Surat Dari :</label><input type="text" id="dari" required placeholder="Instansi / Pengirim"></div>
+                    <div class="form-group"><label>Tentang / Perihal :</label><textarea id="tentang" required placeholder="Ringkasan berita..."></textarea></div>
+                    <div class="form-group" id="fileGroup"><label>Pilih File Fisik Surat :</label><input type="file" id="fileSurat" required></div>
+                    
+                    <button type="submit" id="btnKirim" class="btn-action">KIRIM & TAMPILKAN</button>
+                    <button type="button" id="btnBatalEdit" class="btn-action btn-cancel" style="display:none;" onclick="resetFormMode()">BATALKAN EDIT</button>
+                </form>
+
+                <div class="setting-box">
+                    <h4>⚙️ PENGATURAN DATABASE CLOUD</h4>
+                    <div class="form-group">
+                        <label>Master Key:</label><input type="text" id="secretKey" placeholder="$2a$10$...">
+                    </div>
+                    <div class="form-group">
+                        <label>Bin ID:</label><input type="text" id="binId" placeholder="65abcdef...">
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <button type="button" class="btn-sync-mini" onclick="saveCloudSettings()" style="background:#2e7d32;">SIMPAN CONFIG</button>
+                        <button type="button" class="btn-sync-mini" onclick="copySyncLink()">SALIN LINK TV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fileModal" class="modal-overlay">
+        <div class="modal-content wide-modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalDocTitle">Pratinjau Dokumen Berkas</div>
+                <button class="btn-close-modal" onclick="closePreviewModal()">TUTUP X</button>
+            </div>
+            <div class="modal-body" style="padding:0; background:#fff;">
+                <iframe id="previewIframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let databaseSurat = [];
+    let editIndex = null; 
+    let fileDataTerimpan = ""; 
+
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleString('id-ID');
+    }, 1000);
+
+    // Auto-refresh setiap 10 detik dari cloud
+    setInterval(() => {
+        if (editIndex === null) fetchFromCloud();
+    }, 10000);
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlKey = urlParams.get('key');
+        const urlBin = urlParams.get('bin');
+
+        if (urlKey && urlBin) {
+            localStorage.setItem('cloud_key', urlKey);
+            localStorage.setItem('cloud_bin', urlBin);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        document.getElementById('secretKey').value = localStorage.getItem('cloud_key') || '';
+        document.getElementById('binId').value = localStorage.getItem('cloud_bin') || '';
+        
+        fetchFromCloud();
+    }
+
+    /* KONTROL POPUP INPUT & SETTING */
+    function openControlModal() { document.getElementById('controlModal').style.display = 'flex'; }
+    function closeControlModal() { if(editIndex === null) document.getElementById('controlModal').style.display = 'none'; else alert("Selesaikan atau batalkan edit terlebih dahulu!"); }
+
+    function saveCloudSettings() {
+        const key = document.getElementById('secretKey').value.trim();
+        const bin = document.getElementById('binId').value.trim();
+        if(!key || !bin) { alert("Isi Master Key dan Bin ID!"); return; }
+        localStorage.setItem('cloud_key', key);
+        localStorage.setItem('cloud_bin', bin);
+        alert("Config Cloud berhasil disimpan!");
+        fetchFromCloud();
+    }
+
+    function copySyncLink() {
+        const key = localStorage.getItem('cloud_key');
+        const bin = localStorage.getItem('cloud_bin');
+        if(!key || !bin) { alert("Simpan config dahulu!"); return; }
+        const syncUrl = `${window.location.href.split('?')[0]}?key=${encodeURIComponent(key)}&bin=${encodeURIComponent(bin)}`;
+        navigator.clipboard.writeText(syncUrl).then(() => { alert("Link Sinkronisasi tersalin!"); });
+    }
+
+    function fetchFromCloud() {
+        const key = localStorage.getItem('cloud_key');
+        const bin = localStorage.getItem('cloud_bin');
+        if(!key || !bin) return;
+
+        fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
+        .then(res => res.json())
+        .then(resData => {
+            databaseSurat = resData.record || [];
+            renderTable();
+        })
+        .catch(err => console.error("Koneksi terputus:", err));
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tvTableBody');
+        tbody.innerHTML = "";
+        if(databaseSurat.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip surat online.</td></tr>`;
+            return;
+        }
+        
+        [...databaseSurat].reverse().forEach((surat, index) => {
+            const indexAsli = databaseSurat.length - 1 - index;
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${surat.noSurat}</b></td>
+                <td>${surat.tanggal}</td>
+                <td>${surat.namaSurat}</td>
+                <td>${surat.dari}</td>
+                <td>${surat.tentang}</td>
+                <td>
+                    <button class="btn-view" onclick="openPreviewModal('${indexAsli}')">LIHAT</button>
+                    <button class="btn-edit" onclick="aktifkanModeEdit('${indexAsli}')">EDIT</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    /* KONTROL POPUP PRATINJAU FILE */
+    function openPreviewModal(index) {
+        const targetSurat = databaseSurat[index];
+        document.getElementById('modalDocTitle').innerText = `📄 PREVIEW DOKUMEN: ${targetSurat.namaSurat}`;
+        document.getElementById('previewIframe').src = targetSurat.fileData; 
+        document.getElementById('fileModal').style.display = 'flex';
+    }
+    function closePreviewModal() {
+        document.getElementById('fileModal').style.display = 'none';
+        document.getElementById('previewIframe').src = ""; 
+    }
+
+    /* KONTROL MODE EDIT DATA */
+    function aktifkanModeEdit(index) {
+        editIndex = parseInt(index);
+        const dataTarget = databaseSurat[editIndex];
+
+        document.getElementById('noSurat').value = dataTarget.noSurat;
+        document.getElementById('tanggal').value = dataTarget.tanggal;
+        document.getElementById('namaSurat').value = dataTarget.namaSurat;
+        document.getElementById('dari').value = dataTarget.dari;
+        document.getElementById('tentang').value = dataTarget.tentang;
+        
+        fileDataTerimpan = dataTarget.fileData; 
+        document.getElementById('fileSurat').required = false; 
+
+        document.getElementById('formTitle').innerText = "✏️ EDIT DATA SURAT";
+        const btnKirim = document.getElementById('btnKirim');
+        btnKirim.innerText = "SIMPAN PERUBAHAN";
+        btnKirim.classList.add('btn-edit-mode');
+        document.getElementById('btnBatalEdit').style.display = "block";
+        
+        // Buka otomatis panel kontrolnya agar user langsung bisa edit di form
+        openControlModal();
+    }
+
+    function resetFormMode() {
+        editIndex = null;
+        fileDataTerimpan = "";
+        document.getElementById('suratForm').reset();
+        document.getElementById('fileSurat').required = true;
+        
+        document.getElementById('formTitle').innerText = "📝 INPUT DOKUMEN BARU";
+        const btnKirim = document.getElementById('btnKirim');
+        btnKirim.innerText = "KIRIM & TAMPILKAN";
+        btnKirim.classList.remove('btn-edit-mode');
+        document.getElementById('btnBatalEdit').style.display = "none";
+        document.getElementById('controlModal').style.display = 'none';
+    }
+
+    /* SUBMIT DATA */
+    document.getElementById('suratForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const key = localStorage.getItem('cloud_key');
+        const bin = localStorage.getItem('cloud_bin');
+        if(!key || !bin) { alert("Config cloud belum diisi!"); return; }
+
+        const btn = document.getElementById('btnKirim');
+        btn.disabled = true; btn.innerText = "Memproses...";
+
+        const fileInput = document.getElementById('fileSurat').files[0];
+        
+        const kirimKeCloud = (fileBase64) => {
+            const dataSurat = {
+                noSurat: document.getElementById('noSurat').value,
+                tanggal: document.getElementById('tanggal').value,
+                namaSurat: document.getElementById('namaSurat').value,
+                dari: document.getElementById('dari').value,
+                tentang: document.getElementById('tentang').value,
+                fileData: fileBase64
+            };
+
+            fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
+            .then(res => res.json())
+            .then(resData => {
+                let currentDb = resData.record || [];
+                if (editIndex !== null) { currentDb[editIndex] = dataSurat; } 
+                else { currentDb.push(dataSurat); }
+                return fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
+                    body: JSON.stringify(currentDb)
+                });
+            })
+            .then(() => {
+                alert(editIndex !== null ? "Berhasil diperbarui!" : "Sukses terkirim!");
+                resetFormMode();
+                fetchFromCloud();
+            })
+            .catch(() => alert("Gagal koneksi server."))
+            .finally(() => { btn.disabled = false; });
+        };
+
+        if (fileInput) {
+            const reader = new FileReader();
+            reader.readAsDataURL(fileInput);
+            reader.onload = function() { kirimKeCloud(reader.result); };
+        } else {
+            kirimKeCloud(fileDataTerimpan);
+        }
+    });
+</script>
+</body>
+</html>
