@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Monitoring & Input Surat Darurat</title>
+    <title>Live Monitor TV - Surat Darurat</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -15,6 +15,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         
         /* HEADER UTAMA */
@@ -23,39 +24,35 @@
             justify-content: space-between;
             align-items: center;
             background: #1e1e1e;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 8px;
             border-bottom: 4px solid #ff4d4d;
             margin-bottom: 15px;
         }
-        .header h2 { margin: 0; color: #ff4d4d; letter-spacing: 1px; text-transform: uppercase; font-size: 20px;}
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header h2 { margin: 0; color: #ff4d4d; letter-spacing: 1px; text-transform: uppercase; font-size: 22px;}
         #clock { font-size: 18px; font-weight: bold; color: #ff4d4d; }
 
-        /* TATA LETAK DUA SISI (SPLIT SCREEN) */
-        .main-layout {
+        /* TOMBOL PANEL KONTROL (GEAR ICON) */
+        .btn-gear {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
             display: flex;
-            flex: 1;
-            gap: 15px;
-            min-height: 0;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
         }
+        .btn-gear:hover { background: #ff4d4d; border-color: #ff4d4d; }
 
-        /* PANEL KIRI: PANEL INPUT LANGSUNG */
-        .panel-input {
-            flex: 1;
-            max-width: 400px;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .panel-input h3 { margin-top: 0; color: #ff4d4d; border-bottom: 1px solid #333; padding-bottom: 8px; }
-
-        /* PANEL KANAN: MONITOR LIVE TV */
+        /* PANEL MONITOR FULL SCREEN */
         .panel-monitor {
-            flex: 2;
+            flex: 1;
             background: #1e1e1e;
             padding: 20px;
             border-radius: 8px;
@@ -64,303 +61,51 @@
             flex-direction: column;
             min-height: 0;
         }
-        .panel-monitor h3 { margin-top: 0; color: #ff4d4d; border-bottom: 1px solid #333; padding-bottom: 8px; }
         
-        /* FORM STYLE */
-        .form-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #bbb; font-size: 13px; }
-        input[type="text"], input[type="date"], textarea, input[type="file"] {
-            width: 100%; padding: 10px; border: 1px solid #333; background-color: #2a2a2a; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 13px;
-        }
-        input:focus, textarea:focus { border-color: #ff4d4d; outline: none; }
-        textarea { height: 60px; resize: none; }
-        
-        .btn-action { width: 100%; padding: 12px; background-color: #ff4d4d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-action:hover { background-color: #cc3333; }
-        .btn-edit-mode { background-color: #f0ad4e !important; color: #121212 !important; }
-        .btn-edit-mode:hover { background-color: #ec971f !important; }
-
         /* TABEL MONITOR STYLE */
         .table-container {
             flex: 1;
             overflow-y: auto;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         table { width: 100%; border-collapse: collapse; background: #181818; }
-        th, td { padding: 12px 10px; text-align: left; border: 1px solid #2d2d2d; font-size: 13px; }
-        th { background-color: #ff4d4d; color: white; position: sticky; top: 0; z-index: 5; }
+        th, td { padding: 14px 12px; text-align: left; border: 1px solid #2d2d2d; font-size: 14px; }
+        th { background-color: #ff4d4d; color: white; position: sticky; top: 0; z-index: 5; letter-spacing: 0.5px;}
         tr:nth-child(even) { background-color: #222; }
         tr:hover { background-color: #2a2a2a; }
         
-        .btn-view { background: #00adb5; color: white; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: none; cursor: pointer;}
+        .btn-view { background: #00adb5; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; border: none; cursor: pointer;}
         .btn-view:hover { background: #007a80; }
-        .btn-edit { background: #f0ad4e; color: #121212; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: none; cursor: pointer; margin-left: 3px;}
+        .btn-edit { background: #f0ad4e; color: #121212; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; margin-left: 5px;}
         .btn-edit:hover { background: #ec971f; }
-        .btn-cancel { background: #555; margin-top: 5px; display: none; }
 
-        /* PANEL SETTING BAWAH */
-        .panel-setting {
-            background: #1a1a1a; padding: 10px 20px; margin-top: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; border: 1px solid #333;
+        /* JENDELA POPUP (MODAL BASE) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 999;
+            display: none; 
+            justify-content: center;
+            align-items: center;
         }
-        .panel-setting label { margin-bottom: 0; white-space: nowrap; }
-        .panel-setting input { padding: 6px 10px; font-size: 12px; border: 1px solid #444; background: #222; color: #fff; border-radius: 4px; width: 250px; }
-        .btn-sync { padding: 6px 12px; background: #444; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .btn-sync:hover { background: #555; }
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <h2>⚠️ PUSAT KENDALI & LIVE MONITOR SURAT DARURAT</h2>
-        <div id="clock"></div>
-    </div>
-
-    <div class="main-layout">
-        
-        <div class="panel-input">
-            <div>
-                <h3 id="formTitle">📝 INPUT DOKUMEN</h3>
-                <form id="suratForm">
-                    <div class="form-group"><label>No. Surat :</label><input type="text" id="noSurat" required placeholder="Contoh: 01/DRT/2026"></div>
-                    <div class="form-group"><label>Tanggal Surat :</label><input type="date" id="tanggal" required></div>
-                    <div class="form-group"><label>Nama Surat :</label><input type="text" id="namaSurat" required placeholder="Judul arsip berkas"></div>
-                    <div class="form-group"><label>Surat Dari :</label><input type="text" id="dari" required placeholder="Instansi / Pengirim"></div>
-                    <div class="form-group"><label>Tentang / Perihal :</label><textarea id="tentang" required placeholder="Ringkasan berita darurat..."></textarea></div>
-                    <div class="form-group" id="fileGroup"><label>Pilih File Fisik Surat :</label><input type="file" id="fileSurat" required></div>
-            </div>
-                    <button type="submit" id="btnKirim" class="btn-action">KIRIM & TAMPILKAN SEKARANG</button>
-                    <button type="button" id="btnBatalEdit" class="btn-action btn-cancel" onclick="resetFormMode()">BATALKAN EDIT</button>
-                </form>
-        </div>
-
-        <div class="panel-monitor">
-            <h3>🖥️ LIVE MONITOR TV (SINKRON ONLINE)</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No. Surat</th>
-                            <th>Tanggal</th>
-                            <th>Nama Surat</th>
-                            <th>Dari</th>
-                            <th>Tentang</th>
-                            <th>Aksi Berkas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tvTableBody">
-                        <tr><td colspan="6" style="text-align:center; color:#888;">Menunggu data dari cloud online...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="panel-setting">
-        <strong style="font-size: 13px; color: #ff4d4d; white-space: nowrap;">⚙️ CONFIG CLOUD DI LAYAR:</strong>
-        <label>Master Key:</label><input type="text" id="secretKey" placeholder="$2a$10$...">
-        <label>Bin ID:</label><input type="text" id="binId" placeholder="65abcdef...">
-        <button type="button" class="btn-sync" onclick="saveCloudSettings()" style="background: #2e7d32;">SIMPAN CONFIG</button>
-        <button type="button" class="btn-sync" onclick="copySyncLink()">SALIN LINK TV LAIN</button>
-    </div>
-
-<script>
-    let databaseSurat = [];
-    let editIndex = null; // Menandai baris data mana yang sedang diedit (-1 berarti mode input baru)
-    let fileDataTerimpan = ""; // Menyimpan file lama jika saat edit file tidak diganti
-
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleString('id-ID');
-    }, 1000);
-
-    // Otomatis refresh data dari server cloud setiap 10 detik (hanya jika sedang TIDAK mengedit data)
-    setInterval(() => {
-        if (editIndex === null) fetchFromCloud();
-    }, 10000);
-
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlKey = urlParams.get('key');
-        const urlBin = urlParams.get('bin');
-
-        if (urlKey && urlBin) {
-            localStorage.setItem('cloud_key', urlKey);
-            localStorage.setItem('cloud_bin', urlBin);
-            window.history.replaceState({}, document.title, window.location.pathname);
+        .modal-content {
+            background: #1e1e1e;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+            border: 2px solid #ff4d4d;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-
-        document.getElementById('secretKey').value = localStorage.getItem('cloud_key') || '';
-        document.getElementById('binId').value = localStorage.getItem('cloud_bin') || '';
+        /* Lebar khusus untuk preview file agar puas melihat dokumen */
+        .wide-modal { width: 85% !important; height: 85% !important; }
         
-        fetchFromCloud();
-    }
-
-    function saveCloudSettings() {
-        const key = document.getElementById('secretKey').value.trim();
-        const bin = document.getElementById('binId').value.trim();
-        if(!key || !bin) { alert("Isi Master Key dan Bin ID!"); return; }
-        localStorage.setItem('cloud_key', key);
-        localStorage.setItem('cloud_bin', bin);
-        alert("Config Cloud berhasil diperbarui!");
-        fetchFromCloud();
-    }
-
-    function copySyncLink() {
-        const key = localStorage.getItem('cloud_key');
-        const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) { alert("Simpan config dahulu!"); return; }
-        const syncUrl = `${window.location.href.split('?')[0]}?key=${encodeURIComponent(key)}&bin=${encodeURIComponent(bin)}`;
-        navigator.clipboard.writeText(syncUrl).then(() => {
-            alert("Link Sinkronisasi tersalin!");
-        });
-    }
-
-    function fetchFromCloud() {
-        const key = localStorage.getItem('cloud_key');
-        const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) return;
-
-        fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-        .then(res => res.json())
-        .then(resData => {
-            databaseSurat = resData.record || [];
-            renderTable();
-        })
-        .catch(err => console.error("Koneksi cloud terputus:", err));
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('tvTableBody');
-        tbody.innerHTML = "";
-        if(databaseSurat.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip surat online.</td></tr>`;
-            return;
-        }
-        
-        // Render data terbalik (Terbaru di paling atas)
-        [...databaseSurat].reverse().forEach((surat, index) => {
-            const indexAsli = databaseSurat.length - 1 - index;
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><b>${surat.noSurat}</b></td>
-                <td>${surat.tanggal}</td>
-                <td>${surat.namaSurat}</td>
-                <td>${surat.dari}</td>
-                <td>${surat.tentang}</td>
-                <td>
-                    <button class="btn-view" onclick="openFile('${indexAsli}')">LIHAT</button>
-                    <button class="btn-edit" onclick="aktifkanModeEdit('${indexAsli}')">EDIT</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function openFile(index) {
-        const newWindow = window.open();
-        newWindow.document.write(`<iframe src="${databaseSurat[index].fileData}" frameborder="0" style="width:100%; height:100%;"></iframe>`);
-    }
-
-    // FUNGSI AKTIFKAN MODE EDIT (NAIKKAN DATA KE FORM KIRI)
-    function aktifkanModeEdit(index) {
-        editIndex = parseInt(index);
-        const dataTarget = databaseSurat[editIndex];
-
-        // Isi form dengan data yang dipilih
-        document.getElementById('noSurat').value = dataTarget.noSurat;
-        document.getElementById('tanggal').value = dataTarget.tanggal;
-        document.getElementById('namaSurat').value = dataTarget.namaSurat;
-        document.getElementById('dari').value = dataTarget.dari;
-        document.getElementById('tentang').value = dataTarget.tentang;
-        
-        // Simpan data file lama agar tidak hilang jika tidak diupload ulang
-        fileDataTerimpan = dataTarget.fileData; 
-        document.getElementById('fileSurat').required = false; // File jadi opsional saat edit
-
-        // Ubah Gaya Visual Form menjadi Mode Edit (Warna Kuning)
-        document.getElementById('formTitle').innerText = "✏️ EDIT DATA SURAT";
-        const btnKirim = document.getElementById('btnKirim');
-        btnKirim.innerText = "SIMPAN PERUBAHAN DATA";
-        btnKirim.classList.add('btn-edit-mode');
-        document.getElementById('btnBatalEdit').style.display = "block";
-    }
-
-    // FUNGSI RESET FORM KEMBALI KE MODE INPUT BIASA
-    function resetFormMode() {
-        editIndex = null;
-        fileDataTerimpan = "";
-        document.getElementById('suratForm').reset();
-        document.getElementById('fileSurat').required = true;
-        
-        document.getElementById('formTitle').innerText = "📝 INPUT DOKUMEN";
-        const btnKirim = document.getElementById('btnKirim');
-        btnKirim.innerText = "KIRIM & TAMPILKAN SEKARANG";
-        btnKirim.classList.remove('btn-edit-mode');
-        document.getElementById('btnBatalEdit').style.display = "none";
-    }
-
-    // PROSES PENGIRIMAN DATA (INPUT BARU ATAU SIMPAN PERUBAHAN EDIT)
-    document.getElementById('suratForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const key = localStorage.getItem('cloud_key');
-        const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) { alert("Config database belum diisi!"); return; }
-
-        const btn = document.getElementById('btnKirim');
-        btn.disabled = true; btn.innerText = "Memproses Jaringan...";
-
-        const fileInput = document.getElementById('fileSurat').files[0];
-        
-        // Fungsi eksekusi kirim data ke Cloud JSONBin
-        const kirimKeCloud = (fileBase64) => {
-            const dataSurat = {
-                noSurat: document.getElementById('noSurat').value,
-                tanggal: document.getElementById('tanggal').value,
-                namaSurat: document.getElementById('namaSurat').value,
-                dari: document.getElementById('dari').value,
-                tentang: document.getElementById('tentang').value,
-                fileData: fileBase64
-            };
-
-            fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-            .then(res => res.json())
-            .then(resData => {
-                let currentDb = resData.record || [];
-
-                if (editIndex !== null) {
-                    // JIKA MODE EDIT: Ganti baris data yang lama
-                    currentDb[editIndex] = dataSurat;
-                } else {
-                    // JIKA MODE INPUT BARU: Tambah baris baru di bawah
-                    currentDb.push(dataSurat);
-                }
-
-                // Kirim pembaruan database ke server cloud
-                return fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
-                    body: JSON.stringify(currentDb)
-                });
-            })
-            .then(() => {
-                alert(editIndex !== null ? "Perubahan data berhasil disimpan!" : "Dokumen baru berhasil dikirim!");
-                resetFormMode();
-                fetchFromCloud();
-            })
-            .catch(() => alert("Koneksi gagal. Coba lagi."))
-            .finally(() => { btn.disabled = false; });
-        };
-
-        // Kondisi pembacaan file upload
-        if (fileInput) {
-            const reader = new FileReader();
-            reader.readAsDataURL(fileInput);
-            reader.onload = function() { kirimKeCloud(reader.result); };
-        } else {
-            // Jika mode edit dan user tidak mengganti file, pakai berkas dokumen yang lama
-            kirimKeCloud(fileDataTerimpan);
-        }
-    });
-</script>
-</body>
-</html>
+        .modal-header {
+            background: #2a2a2a;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
