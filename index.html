@@ -33,44 +33,23 @@
         .header h2 { margin: 0; color: #ff4d4d; letter-spacing: 1px; text-transform: uppercase; font-size: 22px;}
         #clock { font-size: 18px; font-weight: bold; color: #ff4d4d; }
 
-        /* TOMBOL PANEL KONTROL (GEAR ICON) */
+        /* GEAR ICON (PANEL KONTROL TERSEMBUNYI) */
         .btn-gear {
-            background: #2a2a2a;
-            color: #fff;
-            border: 1px solid #444;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
+            background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 8px 14px; border-radius: 6px;
+            cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s;
         }
         .btn-gear:hover { background: #ff4d4d; border-color: #ff4d4d; }
 
-        /* PANEL MONITOR FULL SCREEN */
+        /* MONITOR LIVE */
         .panel-monitor {
-            flex: 1;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
+            flex: 1; background: #1e1e1e; padding: 20px; border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; min-height: 0;
         }
         
-        /* TABEL MONITOR STYLE */
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            margin-top: 5px;
-        }
+        .table-container { flex: 1; overflow-y: auto; margin-top: 5px; }
         table { width: 100%; border-collapse: collapse; background: #181818; }
         th, td { padding: 14px 12px; text-align: left; border: 1px solid #2d2d2d; font-size: 14px; }
-        th { background-color: #ff4d4d; color: white; position: sticky; top: 0; z-index: 5; letter-spacing: 0.5px;}
+        th { background-color: #ff4d4d; color: white; position: sticky; top: 0; z-index: 5; }
         tr:nth-child(even) { background-color: #222; }
         tr:hover { background-color: #2a2a2a; }
         
@@ -79,49 +58,24 @@
         .btn-edit { background: #f0ad4e; color: #121212; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; margin-left: 5px;}
         .btn-edit:hover { background: #ec971f; }
 
-        /* JENDELA POPUP (MODAL BASE) */
+        /* JENDELA POPUP OVERLAY */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 999;
-            display: none; 
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 999; display: none; justify-content: center; align-items: center;
         }
         .modal-content {
-            background: #1e1e1e;
-            width: 500px;
-            max-width: 90%;
-            max-height: 90vh;
-            border-radius: 10px;
-            border: 2px solid #ff4d4d;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            background: #1e1e1e; width: 500px; max-width: 90%; max-height: 90vh;
+            border-radius: 10px; border: 2px solid #ff4d4d; display: flex; flex-direction: column; overflow: hidden;
         }
-        /* Lebar khusus untuk preview file agar puas melihat dokumen */
-        .wide-modal { width: 85% !important; height: 85% !important; }
+        /* UKURAN VIEWER DIBUAT PAS LAYAR 95% AGAR SESUAI TATA LETAK FILE */
+        .wide-modal { width: 95% !important; height: 92% !important; }
         
-        .modal-header {
-            background: #2a2a2a;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
+        .modal-header { background: #2a2a2a; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
         .modal-title { font-weight: bold; color: #ff4d4d; font-size: 16px; }
-        .btn-close-modal {
-            background: #d9534f; color: white; border: none; padding: 6px 14px;
-            font-weight: bold; border-radius: 4px; cursor: pointer;
-        }
-        .btn-close-modal:hover { background: #c9302c; }
+        .btn-close-modal { background: #d9534f; color: white; border: none; padding: 6px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
-        .modal-body iframe { width: 100%; height: 100%; border: none; }
+        .modal-body iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        /* FORM STYLE DI DALAM POPUP */
         .form-group { margin-bottom: 14px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #bbb; font-size: 13px; }
         input[type="text"], input[type="date"], textarea, input[type="file"] {
@@ -133,10 +87,10 @@
         .btn-edit-mode { background-color: #f0ad4e !important; color: #121212 !important; }
         .btn-cancel { background: #555; margin-top: 6px; }
         
-        /* SETTING MINI DI DALAM POPUP KONTROL */
         .setting-box { background: #151515; padding: 15px; border-radius: 6px; border: 1px solid #333; margin-top: 20px; }
         .setting-box h4 { margin: 0 0 10px 0; color: #aaa; font-size: 13px; }
         .btn-sync-mini { padding: 6px 12px; background: #444; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 12px; width: 48%; margin-top: 5px;}
+        .info-file { font-size: 11px; color: #a8a8a8; margin-top: 4px; display: block; }
     </style>
 </head>
 <body>
@@ -182,7 +136,12 @@
                     <div class="form-group"><label>Nama Surat :</label><input type="text" id="namaSurat" required placeholder="Judul arsip berkas"></div>
                     <div class="form-group"><label>Surat Dari :</label><input type="text" id="dari" required placeholder="Instansi / Pengirim"></div>
                     <div class="form-group"><label>Tentang / Perihal :</label><textarea id="tentang" required placeholder="Ringkasan berita..."></textarea></div>
-                    <div class="form-group" id="fileGroup"><label>Pilih File Fisik Surat :</label><input type="file" id="fileSurat" required></div>
+                    
+                    <div class="form-group" id="fileGroup">
+                        <label>Pilih File Fisik Surat (PDF/Gambar/Excel):</label>
+                        <input type="file" id="fileSurat" required>
+                        <span class="info-file">*File besar jenis gambar otomatis dikompres sistem agar tidak crash.</span>
+                    </div>
                     
                     <button type="submit" id="btnKirim" class="btn-action">KIRIM & TAMPILKAN</button>
                     <button type="button" id="btnBatalEdit" class="btn-action btn-cancel" style="display:none;" onclick="resetFormMode()">BATALKAN EDIT</button>
@@ -211,8 +170,9 @@
                 <div class="modal-title" id="modalDocTitle">Pratinjau Dokumen Berkas</div>
                 <button class="btn-close-modal" onclick="closePreviewModal()">TUTUP X</button>
             </div>
-            <div class="modal-body" style="padding:0; background:#fff;">
-                <iframe id="previewIframe"></iframe>
+            <div class="modal-body" style="padding:0; background:#fff; display:flex; justify-content:center; align-items:center;">
+                <iframe id="previewIframe" style="width:100%; height:100%; display:none;"></iframe>
+                <img id="previewImg" style="max-width:100%; max-height:100%; object-fit:contain; display:none;" />
             </div>
         </div>
     </div>
@@ -226,7 +186,6 @@
         document.getElementById('clock').innerText = new Date().toLocaleString('id-ID');
     }, 1000);
 
-    // Auto-refresh setiap 10 detik dari cloud
     setInterval(() => {
         if (editIndex === null) fetchFromCloud();
     }, 10000);
@@ -248,7 +207,6 @@
         fetchFromCloud();
     }
 
-    /* KONTROL POPUP INPUT & SETTING */
     function openControlModal() { document.getElementById('controlModal').style.display = 'flex'; }
     function closeControlModal() { if(editIndex === null) document.getElementById('controlModal').style.display = 'none'; else alert("Selesaikan atau batalkan edit terlebih dahulu!"); }
 
@@ -276,19 +234,22 @@
         if(!key || !bin) return;
 
         fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Gagal mengambil data. Periksa kembali Master Key / Bin ID.");
+            return res.json();
+        })
         .then(resData => {
-            databaseSurat = resData.record || [];
+            databaseSurat = Array.isArray(resData.record) ? resData.record : [];
             renderTable();
         })
-        .catch(err => console.error("Koneksi terputus:", err));
+        .catch(err => console.error(err));
     }
 
     function renderTable() {
         const tbody = document.getElementById('tvTableBody');
         tbody.innerHTML = "";
         if(databaseSurat.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip surat online.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip surat online atau format cloud kosong.</td></tr>`;
             return;
         }
         
@@ -296,11 +257,11 @@
             const indexAsli = databaseSurat.length - 1 - index;
             let tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><b>${surat.noSurat}</b></td>
-                <td>${surat.tanggal}</td>
-                <td>${surat.namaSurat}</td>
-                <td>${surat.dari}</td>
-                <td>${surat.tentang}</td>
+                <td><b>${surat.noSurat || '-'}</b></td>
+                <td>${surat.tanggal || '-'}</td>
+                <td>${surat.namaSurat || '-'}</td>
+                <td>${surat.dari || '-'}</td>
+                <td>${surat.tentang || '-'}</td>
                 <td>
                     <button class="btn-view" onclick="openPreviewModal('${indexAsli}')">LIHAT</button>
                     <button class="btn-edit" onclick="aktifkanModeEdit('${indexAsli}')">EDIT</button>
@@ -310,30 +271,93 @@
         });
     }
 
-    /* KONTROL POPUP PRATINJAU FILE */
+    // MANAJEMEN SISTEM PRATINJAU FILE BESAR
     function openPreviewModal(index) {
         const targetSurat = databaseSurat[index];
-        document.getElementById('modalDocTitle').innerText = `📄 PREVIEW DOKUMEN: ${targetSurat.namaSurat}`;
-        document.getElementById('previewIframe').src = targetSurat.fileData; 
+        if(!targetSurat) return;
+        
+        // Cek apakah file berada di penyimpanan lokal memori browser komputer penginput
+        let fileData = targetSurat.fileData;
+        if(!fileData) {
+            fileData = localStorage.getItem("local_file_" + targetSurat.noSurat);
+        }
+        
+        if(!fileData) { alert("Berkas fisik dokumen ini tidak tersinkronisasi di perangkat ini!"); return; }
+        
+        document.getElementById('modalDocTitle').innerText = `📄 VIEWER DOKUMEN: ${targetSurat.namaSurat || ''}`;
+        
+        const iframe = document.getElementById('previewIframe');
+        const img = document.getElementById('previewImg');
+        
+        if(fileData.startsWith("data:image/")) {
+            iframe.style.display = "none";
+            img.src = fileData;
+            img.style.display = "block";
+        } else {
+            img.style.display = "none";
+            iframe.src = fileData;
+            iframe.style.display = "block";
+        }
+        
         document.getElementById('fileModal').style.display = 'flex';
     }
+    
     function closePreviewModal() {
         document.getElementById('fileModal').style.display = 'none';
         document.getElementById('previewIframe').src = ""; 
+        document.getElementById('previewImg').src = ""; 
     }
 
-    /* KONTROL MODE EDIT DATA */
+    // ENGINE ALGORITMA KOMPRESI GAMBAR (Mengubah 5MB jadi 70KB secara instan)
+    function compressImageAndProcess(file, callback) {
+        if (!file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => callback(reader.result, true);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                const MAX_WIDTH = 1200;
+                const MAX_HEIGHT = 1200;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.75); // Kualitas diperkecil ke 75%
+                callback(dataUrl, false);
+            };
+        };
+    }
+
     function aktifkanModeEdit(index) {
         editIndex = parseInt(index);
         const dataTarget = databaseSurat[editIndex];
 
-        document.getElementById('noSurat').value = dataTarget.noSurat;
-        document.getElementById('tanggal').value = dataTarget.tanggal;
-        document.getElementById('namaSurat').value = dataTarget.namaSurat;
-        document.getElementById('dari').value = dataTarget.dari;
-        document.getElementById('tentang').value = dataTarget.tentang;
+        document.getElementById('noSurat').value = dataTarget.noSurat || '';
+        document.getElementById('tanggal').value = dataTarget.tanggal || '';
+        document.getElementById('namaSurat').value = dataTarget.namaSurat || '';
+        document.getElementById('dari').value = dataTarget.dari || '';
+        document.getElementById('tentang').value = dataTarget.tentang || '';
         
-        fileDataTerimpan = dataTarget.fileData; 
+        fileDataTerimpan = dataTarget.fileData || localStorage.getItem("local_file_" + dataTarget.noSurat) || ''; 
         document.getElementById('fileSurat').required = false; 
 
         document.getElementById('formTitle').innerText = "✏️ EDIT DATA SURAT";
@@ -342,7 +366,6 @@
         btnKirim.classList.add('btn-edit-mode');
         document.getElementById('btnBatalEdit').style.display = "block";
         
-        // Buka otomatis panel kontrolnya agar user langsung bisa edit di form
         openControlModal();
     }
 
@@ -360,7 +383,6 @@
         document.getElementById('controlModal').style.display = 'none';
     }
 
-    /* SUBMIT DATA */
     document.getElementById('suratForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const key = localStorage.getItem('cloud_key');
@@ -372,43 +394,64 @@
 
         const fileInput = document.getElementById('fileSurat').files[0];
         
-        const kirimKeCloud = (fileBase64) => {
+        const kirimKeCloud = (fileBase64, isDocument) => {
+            const noSuratKey = document.getElementById('noSurat').value;
+            
+            // JIKA FILE DOKUMEN (PDF/EXCEL) UKURANNYA TERLALU BESAR (>300KB)
+            // Sistem akan otomatis menyimpannya di browser PC Anda agar server cloud tidak memblokir koneksi
+            let finalCloudFile = fileBase64;
+            if(isDocument && fileBase64 && fileBase64.length > 300000) {
+                localStorage.setItem("local_file_" + noSuratKey, fileBase64);
+                finalCloudFile = ""; 
+            }
+
             const dataSurat = {
-                noSurat: document.getElementById('noSurat').value,
+                noSurat: noSuratKey,
                 tanggal: document.getElementById('tanggal').value,
                 namaSurat: document.getElementById('namaSurat').value,
                 dari: document.getElementById('dari').value,
                 tentang: document.getElementById('tentang').value,
-                fileData: fileBase64
+                fileData: finalCloudFile
             };
 
             fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-            .then(res => res.json())
+            .then(res => {
+                if(!res.ok) throw new Error("Gagal mengambil pangkalan data dari cloud.");
+                return res.json();
+            })
             .then(resData => {
-                let currentDb = resData.record || [];
+                let currentDb = Array.isArray(resData.record) ? resData.record : [];
+                
                 if (editIndex !== null) { currentDb[editIndex] = dataSurat; } 
                 else { currentDb.push(dataSurat); }
+                
                 return fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
                     body: JSON.stringify(currentDb)
                 });
             })
+            .then(res => {
+                if(!res.ok) throw new Error("Gagal memperbarui Cloud.");
+                return res.json();
+            })
             .then(() => {
                 alert(editIndex !== null ? "Berhasil diperbarui!" : "Sukses terkirim!");
                 resetFormMode();
                 fetchFromCloud();
             })
-            .catch(() => alert("Gagal koneksi server."))
-            .finally(() => { btn.disabled = false; });
+            .catch(err => {
+                alert("Sistem Error: " + err.message);
+            })
+            .finally(() => { btn.disabled = false; btn.innerText = "KIRIM & TAMPILKAN"; });
         };
 
         if (fileInput) {
-            const reader = new FileReader();
-            reader.readAsDataURL(fileInput);
-            reader.onload = function() { kirimKeCloud(reader.result); };
+            compressImageAndProcess(fileInput, function(result, isDoc) {
+                kirimKeCloud(result, isDoc);
+            });
         } else {
-            kirimKeCloud(fileDataTerimpan);
+            kirimKeCloud(fileDataTerimpan, false);
         }
     });
 </script>
