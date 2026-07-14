@@ -271,31 +271,41 @@
         });
     }
 
-    // MANAJEMEN SISTEM PRATINJAU FILE BESAR
+  // REVISI FUNGSI VIEWER AGAR MENAMPILKAN LANGSUNG TANPA DOWNLOAD
     function openPreviewModal(index) {
         const targetSurat = databaseSurat[index];
         if(!targetSurat) return;
         
-        // Cek apakah file berada di penyimpanan lokal memori browser komputer penginput
+        // Ambil data file (baik dari cloud atau local storage)
         let fileData = targetSurat.fileData;
         if(!fileData) {
             fileData = localStorage.getItem("local_file_" + targetSurat.noSurat);
         }
         
-        if(!fileData) { alert("Berkas fisik dokumen ini tidak tersinkronisasi di perangkat ini!"); return; }
+        if(!fileData) { alert("Berkas fisik dokumen tidak ditemukan!"); return; }
         
         document.getElementById('modalDocTitle').innerText = `📄 VIEWER DOKUMEN: ${targetSurat.namaSurat || ''}`;
         
         const iframe = document.getElementById('previewIframe');
         const img = document.getElementById('previewImg');
         
+        // JIKA FORMATNYA GAMBAR (PNG/JPG)
         if(fileData.startsWith("data:image/")) {
             iframe.style.display = "none";
             img.src = fileData;
             img.style.display = "block";
-        } else {
+        } 
+        // JIKA FORMATNYA LINK ONLINE (Google Drive / URL Lain)
+        else if(fileData.startsWith("http")) {
             img.style.display = "none";
-            iframe.src = fileData;
+            // Dibungkus menggunakan Google Docs Viewer Engine agar langsung merender Excel/PDF/Word di dalam layar
+            iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(fileData) + "&embedded=true";
+            iframe.style.display = "block";
+        }
+        // JIKA FORMATNYA BASE64 DOKUMEN LOKAL (PDF)
+        else {
+            img.style.display = "none";
+            iframe.src = fileData; // Browser akan merender PDF viewer bawaan jika kapasitas memori mencukupi
             iframe.style.display = "block";
         }
         
