@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Monitor TV - Slog KORPASGAT</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -37,6 +39,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
+    <!-- HEADER BAR -->
     <header class="border-b-2 border-red-600 bg-black p-4 flex flex-col md:flex-row justify-between items-center shadow-lg">
         <div class="flex items-center space-x-3">
             <i class="fa-solid fa-tv text-red-600 text-2xl animate-pulse"></i>
@@ -44,7 +47,7 @@
                 <h1 class="text-xl md:text-2xl font-bold tracking-widest text-red-500 neon-text-red font-['Orbitron']">
                     LIVE MONITOR TV - SLOG KORPASGAT
                 </h1>
-                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Google Sheets / Word / Docs / Slides)</p>
+                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Google Link & File Lokal)</p>
             </div>
         </div>
         <div class="mt-4 md:mt-0 flex items-center space-x-4">
@@ -58,12 +61,15 @@
         </div>
     </header>
 
+    <!-- MAIN CONTENT AREA -->
     <main class="flex-grow p-4 md:p-6 max-w-8xl mx-auto w-full">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-500" id="mainGridContainer">
             
+            <!-- PANEL KONTROL (KOLOM KIRI) -->
             <div class="lg:col-span-4 space-y-6 transition-all duration-500" id="controlPanelSection">
                 
+                <!-- SETUP CLOUD DATABASE -->
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
                     <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']">
                         <i class="fa-solid fa-cloud text-xs mr-2"></i> KONEKSI DATABASE CLOUD
@@ -88,6 +94,7 @@
                     </div>
                 </div>
 
+                <!-- FORM INPUT DATA SURAT -->
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
                     <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']" id="formTitle">
                         <i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN
@@ -122,10 +129,23 @@
                             <textarea id="perihalSurat" rows="2" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi perihal singkat..."></textarea>
                         </div>
 
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1 font-bold text-red-400">Link Google Drive / Sheets / Docs / Slides / OneDrive:</label>
-                            <input type="url" id="fileInput" required class="w-full bg-black border border-red-900 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Tempel / Paste Link Dokumen di Sini...">
-                            <span class="block text-[10px] text-zinc-500 mt-1">💡 Tips: Pastikan hak akses link Google Drive sudah diatur ke "Siapa saja yang memiliki link".</span>
+                        <!-- PILIHAN METODE DOKUMEN -->
+                        <div class="border border-zinc-800 p-3 rounded bg-black/50 space-y-3">
+                            <span class="block text-xs font-bold text-red-400"><i class="fa-solid fa-paperclip mr-1"></i> METODE LAMPIRAN BERKAS:</span>
+                            
+                            <!-- OPSI A: LINK URL -->
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Opsi 1: Link Google Drive / Cloud URL</label>
+                                <input type="url" id="fileUrlInput" class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="https://drive.google.com/..." oninput="clearOnConflict('url')">
+                            </div>
+
+                            <div class="text-center text-[10px] text-zinc-600 font-bold">— ATAU —</div>
+
+                            <!-- OPSI B: FILE LOKAL -->
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Opsi 2: Unggah Berkas dari Komputer Lokal</label>
+                                <input type="file" id="localFileInput" class="w-full bg-zinc-800 border border-zinc-700 rounded p-1.5 text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-bold file:bg-red-650 file:text-white hover:file:bg-red-700 cursor-pointer" onchange="clearOnConflict('file')">
+                            </div>
                         </div>
 
                         <div class="flex space-x-2 pt-2">
@@ -141,6 +161,7 @@
 
             </div>
 
+            <!-- MONITOR UTAMA -->
             <div class="lg:col-span-8 transition-all duration-500" id="monitorTableSection">
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md h-full flex flex-col justify-between">
                     <div>
@@ -182,6 +203,7 @@
 
     </main>
 
+    <!-- VIEWER MODAL -->
     <div id="viewerModal" class="fixed inset-0 bg-black bg-opacity-95 hidden z-50 flex flex-col items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 w-full max-w-6xl h-[92vh] rounded-lg flex flex-col overflow-hidden shadow-2xl">
             <div class="bg-black border-b border-zinc-800 p-4 flex justify-between items-center">
@@ -194,10 +216,12 @@
                 </button>
             </div>
             <div class="flex-grow bg-white text-black" id="modalBody">
-                </div>
+                <!-- Frame di-inject otomatis di sini -->
+            </div>
         </div>
     </div>
 
+    <!-- NOTIFIKASI TOAST -->
     <div id="toast" class="fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 transition-all duration-300 font-bold">
         <span id="toastMessage">Sistem Siap!</span>
     </div>
@@ -205,6 +229,8 @@
     <script>
         let database = [];
         let isPanelHidden = false;
+        let localFileBase64 = ""; 
+        let localFileMime = "";
 
         document.addEventListener("DOMContentLoaded", () => {
             const savedKey = localStorage.getItem("jsonbin_key");
@@ -217,6 +243,31 @@
                 loadDatabase();
             }
         });
+
+        // Mencegah kebingungan sistem: jika mengisi salah satu opsi, kosongkan opsi yang lain
+        function clearOnConflict(type) {
+            if (type === 'url') {
+                document.getElementById("localFileInput").value = "";
+                localFileBase64 = "";
+                localFileMime = "";
+            } else if (type === 'file') {
+                document.getElementById("fileUrlInput").value = "";
+                const file = document.getElementById("localFileInput").files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        localFileBase64 = e.target.result; // Berisi string base64 lengkap
+                        localFileMime = file.type || "application/octet-stream";
+                        
+                        // Pemetaan ekstensi manual jika tipe data lokal kosong (seperti berkas .doc lama)
+                        if (file.name.toLowerCase().endsWith('.doc')) {
+                            localFileMime = "application/msword";
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
 
         function toggleControlPanel() {
             const panel = document.getElementById("controlPanelSection");
@@ -307,12 +358,32 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
-            const rawUrl = document.getElementById("fileInput").value.trim();
+            const rawUrl = document.getElementById("fileUrlInput").value.trim();
             
-            // Format link khusus jika menggunakan Google Drive
-            let finalUrl = rawUrl;
-            if (rawUrl.includes("drive.google.com")) {
-                finalUrl = rawUrl.replace(/\/view\?usp=sharing|\/view/g, "/preview");
+            let finalFileData = "";
+            let fileTypeIndicator = "link";
+
+            if (rawUrl !== "") {
+                // Proses Simpan Opsi 1: Link URL Cloud
+                finalFileData = rawUrl;
+                if (rawUrl.includes("drive.google.com")) {
+                    finalFileData = rawUrl.replace(/\/view\?usp=sharing|\/view/g, "/preview");
+                }
+                fileTypeIndicator = "link";
+            } else if (localFileBase64 !== "") {
+                // Proses Simpan Opsi 2: File Lokal Komputer
+                finalFileData = localFileBase64;
+                fileTypeIndicator = "local";
+            } else {
+                // Validasi jika saat buat baru, dua kolom kosong semua
+                if (index === -1) {
+                    showToast("Pilih salah satu: Isi Link URL atau Upload File Lokal!", "error");
+                    return;
+                } else {
+                    // Mode Edit jika tidak ganti file, pertahankan file lama
+                    finalFileData = database[index].fileData;
+                    fileTypeIndicator = database[index].fileType || "link";
+                }
             }
 
             const suratBaru = {
@@ -321,7 +392,8 @@
                 namaSurat: document.getElementById("namaSurat").value.trim(),
                 dari: document.getElementById("asalSurat").value.trim(),
                 tentang: document.getElementById("perihalSurat").value.trim(),
-                fileData: finalUrl // Menyimpan langsung Link URL Berkas
+                fileData: finalFileData,
+                fileType: fileTypeIndicator
             };
 
             if (index === -1) {
@@ -344,9 +416,13 @@
             }
 
             tbody.innerHTML = database.map((surat, index) => {
+                const iconType = surat.fileType === 'local' ? 'fa-laptop-code text-blue-400' : 'fa-cloud text-green-400';
                 return `
                     <tr class="hover:bg-zinc-800 border-b border-zinc-800 text-gray-200">
-                        <td class="py-3 px-2 font-bold">${surat.noSurat}</td>
+                        <td class="py-3 px-2 font-bold flex items-center space-x-1.5">
+                            <i class="fa-solid ${iconType} text-[10px]" title="${surat.fileType === 'local' ? 'File Lokal' : 'Link Cloud'}"></i>
+                            <span>${surat.noSurat}</span>
+                        </td>
                         <td class="py-3 px-2 text-xs">${surat.tanggal}</td>
                         <td class="py-3 px-2">${surat.namaSurat}</td>
                         <td class="py-3 px-2 text-zinc-400 font-semibold">${surat.dari || "-"}</td>
@@ -372,43 +448,40 @@
 
             document.getElementById("modalSuratTitle").innerText = `VIEWER MONITOR TV: ${surat.namaSurat.toUpperCase()}`;
             const body = document.getElementById("modalBody");
+            const fileTarget = surat.fileData ? surat.fileData.trim() : "";
 
-            const fileUrl = surat.fileData ? surat.fileData.trim() : "";
-
-            if (!fileUrl) {
+            if (!fileTarget) {
                 body.innerHTML = `
                     <div class="text-center py-20 text-zinc-600">
                         <i class="fa-solid fa-circle-exclamation text-4xl mb-2 text-yellow-500"></i>
-                        <p class="font-bold text-lg">Link lampiran berkas tidak ditemukan.</p>
+                        <p class="font-bold text-lg">Dokumen lampiran kosong.</p>
                     </div>`;
             } else {
-                // Menggunakan penampil eksternal resmi Google Docs/Sheets/Slides untuk me-render link secara realtime
-                let embedUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
-                
-                // Jika berkas sudah berupa link pratinjau Drive asli atau web interaktif, muat langsung
-                if (fileUrl.includes("drive.google.com") && fileUrl.includes("/preview")) {
-                    embedUrl = fileUrl;
+                if (surat.fileType === "local") {
+                    // JIKA FILE LOKAL -> Muat langsung Base64 ke iframe bawaan browser agar utuh tanpa unduh
+                    body.innerHTML = `<iframe src="${fileTarget}" class="w-full h-full border-none" style="background-color:#ffffff;"></iframe>`;
+                } else {
+                    // JIKA LINK LINK CLOUD -> Buka menggunakan eksternal Google Viewer Engine
+                    let embedUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileTarget)}&embedded=true`;
+                    if (fileTarget.includes("drive.google.com") && fileTarget.includes("/preview")) {
+                        embedUrl = fileTarget;
+                    }
+                    body.innerHTML = `<iframe src="${embedUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>`;
                 }
-
-                body.innerHTML = `
-                    <iframe src="${embedUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>
-                `;
             }
             document.getElementById("viewerModal").classList.remove("hidden");
         }
 
         function closeModal() {
             document.getElementById("viewerModal").classList.add("hidden");
-            document.getElementById("modalBody").innerHTML = ""; // Bersihkan frame agar memori TV tetap ringan
+            document.getElementById("modalBody").innerHTML = ""; 
         }
 
         function editDocument(index) {
             const surat = database[index];
             if (!surat) return;
 
-            if (isPanelHidden) {
-                toggleControlPanel();
-            }
+            if (isPanelHidden) toggleControlPanel();
 
             document.getElementById("editIndex").value = index;
             document.getElementById("noSurat").value = surat.noSurat;
@@ -416,7 +489,16 @@
             document.getElementById("namaSurat").value = surat.namaSurat;
             document.getElementById("asalSurat").value = surat.dari;
             document.getElementById("perihalSurat").value = surat.tentang;
-            document.getElementById("fileInput").value = surat.fileData || "";
+
+            // Kembalikan ke kolom input yang sesuai berdasarkan metodenya
+            if (surat.fileType === "local") {
+                document.getElementById("fileUrlInput").value = "";
+                localFileBase64 = surat.fileData;
+            } else {
+                document.getElementById("fileUrlInput").value = surat.fileData || "";
+                document.getElementById("localFileInput").value = "";
+                localFileBase64 = "";
+            }
 
             document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-edit text-xs mr-2 text-yellow-500 animate-pulse"></i> EDIT MODE SURAT`;
             document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-xs font-bold transition duration-200";
@@ -434,6 +516,8 @@
         function resetForm() {
             document.getElementById("suratForm").reset();
             document.getElementById("editIndex").value = "-1";
+            localFileBase64 = "";
+            localFileMime = "";
             
             document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN`;
             document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200";
