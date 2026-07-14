@@ -3,102 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Monitor TV - Pengumuman Slog</title>
+    <title>Live Monitor TV - Slog KORPASGAT</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #121212; 
-            color: #e0e0e0; 
-            margin: 0; 
-            padding: 15px;
-            box-sizing: border-box;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        /* THEME: DARK COMMAND CENTER */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0d0d0d; color: #e0e0e0; margin: 0; padding: 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px 20px; border-radius: 8px; border-bottom: 3px solid #ff4d4d; margin-bottom: 15px; }
+        .header h2 { margin: 0; color: #ff4d4d; text-transform: uppercase; font-size: 20px; letter-spacing: 1px; }
+        #clock { font-size: 16px; font-weight: bold; color: #ff4d4d; }
+        .btn-gear { background: #262626; color: #fff; border: 1px solid #404040; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; }
         
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1e1e1e;
-            padding: 12px 20px;
-            border-radius: 8px;
-            border-bottom: 4px solid #ff4d4d;
-            margin-bottom: 15px;
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .header h2 { margin: 0; color: #ff4d4d; letter-spacing: 1px; text-transform: uppercase; font-size: 22px;}
-        #clock { font-size: 18px; font-weight: bold; color: #ff4d4d; }
-
-        .btn-gear {
-            background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 8px 14px; border-radius: 6px;
-            cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s;
-        }
-        .btn-gear:hover { background: #ff4d4d; border-color: #ff4d4d; }
-
-        .panel-monitor {
-            flex: 1; background: #1e1e1e; padding: 20px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; min-height: 0;
-        }
-        
-        .table-container { flex: 1; overflow-y: auto; margin-top: 5px; }
-        table { width: 100%; border-collapse: collapse; background: #181818; }
-        th, td { padding: 14px 12px; text-align: left; border: 1px solid #2d2d2d; font-size: 14px; }
+        .panel-monitor { flex: 1; background: #141414; padding: 15px; border-radius: 8px; border: 1px solid #262626; display: flex; flex-direction: column; min-height: 0; }
+        .table-container { flex: 1; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #262626; font-size: 13px; }
         th { background-color: #ff4d4d; color: white; position: sticky; top: 0; z-index: 5; }
-        tr:nth-child(even) { background-color: #222; }
-        tr:hover { background-color: #2a2a2a; }
+        tr:nth-child(even) { background-color: #1a1a1a; }
         
-        .btn-view { background: #00adb5; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; border: none; cursor: pointer;}
-        .btn-view:hover { background: #007a80; }
-        .btn-edit { background: #f0ad4e; color: #121212; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; margin-left: 5px;}
-        .btn-edit:hover { background: #ec971f; }
+        .btn-view { background: #00adb5; color: white; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-edit { background: #f39c12; color: #000; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 4px; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 999; display: none; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: #1e1e1e; width: 500px; max-width: 90%; max-height: 90vh;
-            border-radius: 10px; border: 2px solid #ff4d4d; display: flex; flex-direction: column; overflow: hidden;
-        }
-        .wide-modal { width: 95% !important; height: 92% !important; }
-        
-        .modal-header { background: #2a2a2a; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .modal-title { font-weight: bold; color: #ff4d4d; font-size: 16px; }
-        .btn-close-modal { background: #d9534f; color: white; border: none; padding: 6px 14px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
-        
-        /* Style Khusus untuk Merender Tampilan Isi Lembar Excel */
-        .excel-render-table { width: 100%; border-collapse: collapse; background: #ffffff; color: #333333; }
-        .excel-render-table th, .excel-render-table td { padding: 8px; border: 1px solid #cccccc; color: #333333; font-size: 12px; }
-        .excel-render-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+        /* MODAL / POPUP */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; display: none; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a1a; border: 2px solid #ff4d4d; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; width: 500px; max-height: 90vh; }
+        .wide-modal { width: 95% !important; height: 90% !important; }
+        .modal-header { background: #262626; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .modal-body { flex: 1; padding: 15px; overflow: auto; }
 
-        .form-group { margin-bottom: 14px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; color: #bbb; font-size: 13px; }
-        input[type="text"], input[type="date"], textarea, input[type="file"] {
-            width: 100%; padding: 10px; border: 1px solid #333; background-color: #2a2a2a; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 13px;
-        }
-        textarea { height: 70px; resize: none; }
-        .btn-action { width: 100%; padding: 12px; background-color: #ff4d4d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-action:hover { background-color: #cc3333; }
-        .btn-edit-mode { background-color: #f0ad4e !important; color: #121212 !important; }
-        .btn-cancel { background: #555; margin-top: 6px; }
+        /* FORM */
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-size: 12px; color: #aaa; }
+        input, textarea { width: 100%; padding: 8px; background: #262626; border: 1px solid #404040; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        .btn-action { width: 100%; padding: 10px; background: #ff4d4d; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         
-        .setting-box { background: #151515; padding: 15px; border-radius: 6px; border: 1px solid #333; margin-top: 20px; }
-        .setting-box h4 { margin: 0 0 10px 0; color: #aaa; font-size: 13px; }
-        .btn-sync-mini { padding: 6px 12px; background: #444; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 12px; width: 48%; margin-top: 5px;}
-        .info-file { font-size: 11px; color: #ff4d4d; margin-top: 4px; display: block; }
+        /* EXCEL RENDER TABLE */
+        .excel-table { width: 100%; border-collapse: collapse; background: #fff; color: #000; }
+        .excel-table td, .excel-table th { border: 1px solid #ccc; padding: 6px; font-size: 11px; }
+        .excel-table th { background: #eee; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="header-left">
-            <h2>🖥️ LIVE MONITOR TV - PENGERJAAN SLOG</h2>
-            <button class="btn-gear" onclick="openControlModal()">⚙️ PANEL KONTROL</button>
+        <div>
+            <h2>🖥️ MONITOR TV - SLOG KORPASGAT</h2>
+            <button class="btn-gear" onclick="openControlModal()" style="margin-top:5px;">⚙️ PANEL KONTROL</button>
         </div>
         <div id="clock"></div>
     </div>
@@ -112,12 +61,12 @@
                         <th>Tanggal</th>
                         <th>Nama Surat</th>
                         <th>Dari</th>
-                        <th>Tentang / Perihal</th>
-                        <th>Aksi Berkas</th>
+                        <th>Tentang</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="tvTableBody">
-                    <tr><td colspan="6" style="text-align:center; color:#888;">Menunggu data dari cloud online...</td></tr>
+                    <tr><td colspan="6" style="text-align:center;">Memuat Data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -126,39 +75,28 @@
     <div id="controlModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title" id="formTitle">📝 INPUT DOKUMEN BARU</div>
-                <button class="btn-close-modal" onclick="closeControlModal()">TUTUP X</button>
+                <span id="formTitle" style="color:#ff4d4d; font-weight:bold;">INPUT DATA</span>
+                <button onclick="closeControlModal()" style="background:#ff4d4d; color:#fff; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">TUTUP X</button>
             </div>
             <div class="modal-body">
                 <form id="suratForm">
-                    <div class="form-group"><label>No. Surat :</label><input type="text" id="noSurat" required placeholder="Contoh: 01/SLOG/2026"></div>
-                    <div class="form-group"><label>Tanggal Surat :</label><input type="date" id="tanggal" required></div>
-                    <div class="form-group"><label>Nama Surat :</label><input type="text" id="namaSurat" required placeholder="Judul arsip berkas"></div>
-                    <div class="form-group"><label>Surat Dari :</label><input type="text" id="dari" required placeholder="Instansi / Pengirim"></div>
-                    <div class="form-group"><label>Tentang / Perihal :</label><textarea id="tentang" required placeholder="Ringkasan berita..."></textarea></div>
-                    
-                    <div class="form-group" id="fileGroup">
-                        <label>Unggah Berkas Langsung (Excel / Image / PDF):</label>
+                    <div class="form-group"><label>No. Surat:</label><input type="text" id="noSurat" required></div>
+                    <div class="form-group"><label>Tanggal:</label><input type="date" id="tanggal" required></div>
+                    <div class="form-group"><label>Nama Dokumen:</label><input type="text" id="namaSurat" required></div>
+                    <div class="form-group"><label>Dari:</label><input type="text" id="dari" required></div>
+                    <div class="form-group"><label>Perihal:</label><textarea id="tentang" required></textarea></div>
+                    <div class="form-group">
+                        <label>Pilih File Excel/Gambar:</label>
                         <input type="file" id="fileSurat">
-                        <span class="info-file">*Sistem otomatis merubah Excel menjadi tabel web interaktif agar tidak terdownload otomatis di TV Monitor.</span>
                     </div>
-                    
-                    <button type="submit" id="btnKirim" class="btn-action">KIRIM & TAMPILKAN</button>
-                    <button type="button" id="btnBatalEdit" class="btn-action btn-cancel" style="display:none;" onclick="resetFormMode()">BATALKAN EDIT</button>
+                    <button type="submit" id="btnKirim" class="btn-action">KIRIM KE LAYAR TV</button>
+                    <button type="button" id="btnBatalEdit" class="btn-action" style="background:#555; display:none; margin-top:5px;" onclick="resetFormMode()">BATAL EDIT</button>
                 </form>
 
-                <div class="setting-box">
-                    <h4>⚙️ PENGATURAN DATABASE CLOUD</h4>
-                    <div class="form-group">
-                        <label>Master Key:</label><input type="text" id="secretKey" placeholder="$2a$10$...">
-                    </div>
-                    <div class="form-group">
-                        <label>Bin ID:</label><input type="text" id="binId" placeholder="65abcdef...">
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <button type="button" class="btn-sync-mini" onclick="saveCloudSettings()" style="background:#2e7d32;">SIMPAN CONFIG</button>
-                        <button type="button" class="btn-sync-mini" onclick="copySyncLink()">SALIN LINK TV</button>
-                    </div>
+                <div style="background:#000; padding:10px; margin-top:15px; border-radius:5px; border:1px solid #333;">
+                    <label>Master Key:</label><input type="text" id="secretKey" style="font-size:10px;">
+                    <label>Bin ID:</label><input type="text" id="binId" style="font-size:10px;">
+                    <button onclick="saveCloudSettings()" style="width:100%; margin-top:10px; background:#27ae60; color:#fff; border:none; padding:5px; border-radius:3px; cursor:pointer; font-size:11px;">SIMPAN CONFIG CLOUD</button>
                 </div>
             </div>
         </div>
@@ -167,27 +105,23 @@
     <div id="fileModal" class="modal-overlay">
         <div class="modal-content wide-modal">
             <div class="modal-header">
-                <div class="modal-title" id="modalDocTitle">Pratinjau Dokumen Berkas</div>
-                <button class="btn-close-modal" onclick="closePreviewModal()">TUTUP X</button>
+                <span id="modalDocTitle" style="color:#ff4d4d; font-weight:bold;">PRATINJAU</span>
+                <button onclick="closePreviewModal()" style="background:#ff4d4d; color:#fff; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">TUTUP X</button>
             </div>
-            <div class="modal-body" id="modalViewerBody" style="background:#fff; overflow: auto; padding: 15px;">
-                </div>
+            <div id="modalViewerBody" class="modal-body" style="background:#fff;"></div>
         </div>
     </div>
 
 <script>
     let databaseSurat = [];
-    let editIndex = null; 
-    let fileDataTerimpan = ""; 
-    let currentFileType = ""; // Menyimpan tipe ekstensi file saat ini
+    let editIndex = null;
+    let fileDataTerimpan = "";
 
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleString('id-ID');
-    }, 1000);
+    // Jam Digital
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('id-ID'); }, 1000);
 
-    setInterval(() => {
-        if (editIndex === null) fetchFromCloud();
-    }, 10000);
+    // Auto Refresh 15 detik
+    setInterval(() => { if (editIndex === null) fetchFromCloud(); }, 15000);
 
     window.onload = function() {
         document.getElementById('secretKey').value = localStorage.getItem('cloud_key') || '';
@@ -195,16 +129,10 @@
         fetchFromCloud();
     }
 
-    function openControlModal() { document.getElementById('controlModal').style.display = 'flex'; }
-    function closeControlModal() { if(editIndex === null) document.getElementById('controlModal').style.display = 'none'; else alert("Selesaikan atau batalkan edit terlebih dahulu!"); }
-
     function saveCloudSettings() {
-        const key = document.getElementById('secretKey').value.trim();
-        const bin = document.getElementById('binId').value.trim();
-        if(!key || !bin) { alert("Isi Master Key dan Bin ID!"); return; }
-        localStorage.setItem('cloud_key', key);
-        localStorage.setItem('cloud_bin', bin);
-        alert("Config Cloud berhasil disimpan!");
+        localStorage.setItem('cloud_key', document.getElementById('secretKey').value.trim());
+        localStorage.setItem('cloud_bin', document.getElementById('binId').value.trim());
+        alert("Config Cloud Tersimpan!");
         fetchFromCloud();
     }
 
@@ -212,192 +140,116 @@
         const key = localStorage.getItem('cloud_key');
         const bin = localStorage.getItem('cloud_bin');
         if(!key || !bin) return;
-
         fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-        .then(res => { if (!res.ok) throw new Error("Gagal mengambil data cloud."); return res.json(); })
-        .then(resData => {
-            let cleanRecord = Array.isArray(resData.record) ? resData.record : [];
-            databaseSurat = cleanRecord.filter(item => item && item.noSurat);
-            renderTable();
-        })
-        .catch(err => console.error(err));
+        .then(res => res.json())
+        .then(data => {
+            databaseSurat = Array.isArray(data.record) ? data.record : [];
+            const tbody = document.getElementById('tvTableBody');
+            tbody.innerHTML = databaseSurat.length ? "" : "<tr><td colspan='6' style='text-align:center;'>Database Kosong</td></tr>";
+            [...databaseSurat].reverse().forEach((s, i) => {
+                const idx = databaseSurat.length - 1 - i;
+                tbody.innerHTML += `<tr><td>${s.noSurat}</td><td>${s.tanggal}</td><td>${s.namaSurat}</td><td>${s.dari}</td><td>${s.tentang}</td><td><button class="btn-view" onclick="openPreviewModal(${idx})">LIHAT</button><button class="btn-edit" onclick="aktifkanModeEdit(${idx})">EDIT</button></td></tr>`;
+            });
+        }).catch(e => console.log("Offline/Error"));
     }
 
-    function renderTable() {
-        const tbody = document.getElementById('tvTableBody');
-        tbody.innerHTML = "";
-        if(databaseSurat.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada arsip dokumen online.</td></tr>`;
-            return;
-        }
-        
-        [...databaseSurat].reverse().forEach((surat, index) => {
-            const indexAsli = databaseSurat.length - 1 - index;
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><b>${surat.noSurat || '-'}</b></td>
-                <td>${surat.tanggal || '-'}</td>
-                <td>${surat.namaSurat || '-'}</td>
-                <td>${surat.dari || '-'}</td>
-                <td>${surat.tentang || '-'}</td>
-                <td>
-                    <button class="btn-view" onclick="openPreviewModal('${indexAsli}')">LIHAT</button>
-                    <button class="btn-edit" onclick="aktifkanModeEdit('${indexAsli}')">EDIT</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // FUNGSI RENDER UTAMA AGAR EXCEL MUNCUL SEBAGAI TABEL BUKAN DOWNLOAD
-    function openPreviewModal(index) {
-        const targetSurat = databaseSurat[index];
-        if(!targetSurat) return;
-        
-        let fileData = targetSurat.fileData;
-        let fileKind = targetSurat.fileType || "html";
-        
-        if(!fileData) { alert("Berkas dokumen kosong!"); return; }
-        
-        document.getElementById('modalDocTitle').innerText = `📄 VIEWER DOKUMEN: ${targetSurat.namaSurat || ''}`;
-        const viewerBody = document.getElementById('modalViewerBody');
-        viewerBody.innerHTML = ""; // Kosongkan viewer dahulu
-
-        if(fileKind === "excel" || fileData.startsWith("<table")) {
-            // Render langsung struktur data HTML Excel yang sudah di-convert
-            viewerBody.innerHTML = `<div style="overflow:auto; width:100%; height:100%;">${fileData}</div>`;
-        } 
-        else if(fileData.startsWith("data:image/")) {
-            viewerBody.innerHTML = `<img src="${fileData}" style="max-width:100%; max-height:100%; object-fit:contain; display:block; margin:auto;" />`;
-        } 
-        else {
-            // PDF Render Fallback
-            viewerBody.innerHTML = `<iframe src="${fileData}" style="width:100%; height:100%; border:none;"></iframe>`;
-        }
-        
+    function openPreviewModal(idx) {
+        const s = databaseSurat[idx];
+        document.getElementById('modalDocTitle').innerText = s.namaSurat;
+        const body = document.getElementById('modalViewerBody');
+        if(s.fileData.startsWith("<table")) { body.innerHTML = s.fileData; }
+        else if(s.fileData.startsWith("data:image")) { body.innerHTML = `<img src="${s.fileData}" style="max-width:100%;">`; }
+        else { body.innerHTML = `<iframe src="${s.fileData}" style="width:100%; height:100%; border:none;"></iframe>`; }
         document.getElementById('fileModal').style.display = 'flex';
     }
-    
-    function closePreviewModal() {
-        document.getElementById('fileModal').style.display = 'none';
-        document.getElementById('modalViewerBody').innerHTML = "";
-    }
 
-    function aktifkanModeEdit(index) {
-        editIndex = parseInt(index);
-        const dataTarget = databaseSurat[editIndex];
+    function closePreviewModal() { document.getElementById('fileModal').style.display = 'none'; }
+    function openControlModal() { document.getElementById('controlModal').style.display = 'flex'; }
+    function closeControlModal() { if(!editIndex) document.getElementById('controlModal').style.display = 'none'; }
 
-        document.getElementById('noSurat').value = dataTarget.noSurat || '';
-        document.getElementById('tanggal').value = dataTarget.tanggal || '';
-        document.getElementById('namaSurat').value = dataTarget.namaSurat || '';
-        document.getElementById('dari').value = dataTarget.dari || '';
-        document.getElementById('tentang').value = dataTarget.tentang || '';
-        
-        fileDataTerimpan = dataTarget.fileData || '';
-        currentFileType = dataTarget.fileType || '';
-
-        document.getElementById('formTitle').innerText = "✏️ EDIT DATA SURAT";
-        const btnKirim = document.getElementById('btnKirim');
-        btnKirim.innerText = "SIMPAN PERUBAHAN";
-        btnKirim.classList.add('btn-edit-mode');
+    function aktifkanModeEdit(idx) {
+        editIndex = idx;
+        const s = databaseSurat[idx];
+        document.getElementById('noSurat').value = s.noSurat;
+        document.getElementById('tanggal').value = s.tanggal;
+        document.getElementById('namaSurat').value = s.namaSurat;
+        document.getElementById('dari').value = s.dari;
+        document.getElementById('tentang').value = s.tentang;
+        fileDataTerimpan = s.fileData;
+        document.getElementById('formTitle').innerText = "EDIT DATA";
+        document.getElementById('btnKirim').innerText = "SIMPAN PERUBAHAN";
         document.getElementById('btnBatalEdit').style.display = "block";
         openControlModal();
     }
 
     function resetFormMode() {
-        editIndex = null; fileDataTerimpan = ""; currentFileType = "";
+        editIndex = null;
         document.getElementById('suratForm').reset();
-        document.getElementById('formTitle').innerText = "📝 INPUT DOKUMEN BARU";
-        const btnKirim = document.getElementById('btnKirim');
-        btnKirim.innerText = "KIRIM & TAMPILKAN";
-        btnKirim.classList.remove('btn-edit-mode');
+        document.getElementById('formTitle').innerText = "INPUT DATA";
+        document.getElementById('btnKirim').innerText = "KIRIM KE LAYAR TV";
         document.getElementById('btnBatalEdit').style.display = "none";
-        document.getElementById('controlModal').style.display = 'none';
+        closeControlModal();
     }
 
     document.getElementById('suratForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const key = localStorage.getItem('cloud_key');
         const bin = localStorage.getItem('cloud_bin');
-        if(!key || !bin) { alert("Config database cloud belum diisi!"); return; }
-
+        const file = document.getElementById('fileSurat').files[0];
         const btn = document.getElementById('btnKirim');
-        const fileInput = document.getElementById('fileSurat').files[0];
-        
-        btn.disabled = true; btn.innerText = "Memproses Berkas...";
+        btn.disabled = true; btn.innerText = "SINKRONISASI CLOUD...";
 
-        const eksekusiKirim = (finalDataText, typeLabel) => {
-            const dataSurat = {
+        const uploadData = (fData) => {
+            const newData = {
                 noSurat: document.getElementById('noSurat').value,
                 tanggal: document.getElementById('tanggal').value,
                 namaSurat: document.getElementById('namaSurat').value,
                 dari: document.getElementById('dari').value,
                 tentang: document.getElementById('tentang').value,
-                fileData: finalDataText,
-                fileType: typeLabel
+                fileData: fData
             };
 
+            // Ambil data terbaru dulu
             fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } })
-            .then(res => { if(!res.ok) throw new Error("Gagal kontak server cloud."); return res.json(); })
-            .then(resData => {
-                let currentDb = Array.isArray(resData.record) ? resData.record : [];
-                currentDb = currentDb.filter(item => item && item.noSurat);
+            .then(res => res.json())
+            .then(data => {
+                let db = Array.isArray(data.record) ? data.record : [];
+                if(editIndex !== null) db[editIndex] = newData; else db.push(newData);
                 
-                if (editIndex !== null) { currentDb[editIndex] = dataSurat; } 
-                else { currentDb.push(dataSurat); }
-                
-                return fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+                // Simpan kembali (Gunakan ?versioning=false untuk menghemat space)
+                return fetch(`https://api.jsonbin.io/v3/b/${bin}?versioning=false`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
-                    body: JSON.stringify(currentDb)
+                    body: JSON.stringify(db)
                 });
             })
-            .then(res => { if(!res.ok) throw new Error("Gagal memperbarui pangkalan data."); return res.json(); })
-            .then(() => {
-                alert("Data Sukses Diperbarui Ke Layar TV!");
-                resetFormMode();
-                fetchFromCloud();
+            .then(res => {
+                if(!res.ok) throw new Error("File terlalu besar!");
+                alert("Data Berhasil Tayang di TV!");
+                resetFormMode(); fetchFromCloud();
             })
-            .catch(err => alert("Error Server: " + err.message))
-            .finally(() => { btn.disabled = false; btn.innerText = "KIRIM & TAMPILKAN"; });
+            .catch(err => alert("ERROR: File Excel terlalu besar/padat untuk Cloud gratis. Kurangi baris/formatting Excel."))
+            .finally(() => { btn.disabled = false; btn.innerText = "KIRIM KE LAYAR TV"; });
         };
 
-        if (fileInput) {
-            const namaFile = fileInput.name.toLowerCase();
-            
-            // JIKA FILE ADALAH EXCEL (.XLSX ATAU .XLS)
-            if(namaFile.endsWith('.xlsx') || namaFile.endsWith('.xls')) {
-                const reader = new FileReader();
-                reader.readAsArrayBuffer(fileInput);
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const sheetName = workbook.SheetNames[0]; // Ambil sheet pertama
-                    const worksheet = workbook.Sheets[sheetName];
-                    
-                    // Mengubah isi excel menjadi string HTML tabel murni yang sangat enteng
-                    const htmlTableString = XLSX.utils.sheet_to_html(worksheet, { id: "excelTable", editable: false });
-                    
-                    // Modifikasi class style agar terlihat kontras saat ditampilkan
-                    const stylizedTable = htmlTableString.replace("<table>", "<table class='excel-render-table'>");
-                    eksekusiKirim(stylizedTable, "excel");
+        if(file) {
+            const reader = new FileReader();
+            if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                reader.readAsArrayBuffer(file);
+                reader.onload = (ev) => {
+                    const wb = XLSX.read(ev.target.result, {type: 'array'});
+                    const ws = wb.Sheets[wb.SheetNames[0]];
+                    // KONVERSI RAW: Tanpa style, hanya tabel polos agar hemat data
+                    const rawHtml = XLSX.utils.sheet_to_html(ws, { header: '', footer: '' });
+                    const cleanHtml = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
+                    uploadData(cleanHtml);
                 };
-            } 
-            // JIKA FILE ADALAH GAMBAR
-            else if(fileInput.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.readAsDataURL(fileInput);
-                reader.onload = () => eksekusiKirim(reader.result, "image");
-            } 
-            // DOKUMEN LAIN (PDF)
-            else {
-                const reader = new FileReader();
-                reader.readAsDataURL(fileInput);
-                reader.onload = () => eksekusiKirim(reader.result, "pdf");
+            } else {
+                reader.readAsDataURL(file);
+                reader.onload = () => uploadData(reader.result);
             }
         } else {
-            // Jika dalam mode edit dan tidak mengganti file berkas fisik
-            eksekusiKirim(fileDataTerimpan, currentFileType);
+            uploadData(fileDataTerimpan);
         }
     });
 </script>
