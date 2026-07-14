@@ -331,85 +331,80 @@
             }
         }
 
-        // PROSES DETEKSI & PARSING BERKAS (ANTI DOWNLOAD)
-        document.getElementById("fileInput").addEventListener("change", function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+      document.getElementById("fileInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-            const loader = document.getElementById("fileLoadingStatus");
-            loader.classList.remove("hidden");
-            showToast("Membaca & Memproses File...", "info");
+    const loader = document.getElementById("fileLoadingStatus");
+    if (loader) loader.classList.remove("hidden");
+    
+    const reader = new FileReader();
+    const fileName = file.name.toLowerCase();
 
-            const reader = new FileReader();
-
-            // 1. FORMAT EXCEL (Dikonversi ke HTML Table Ringan)
-            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                reader.onload = function(evt) {
-                    try {
-                        const data = new Uint8Array(evt.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        
-                        const rawHtml = XLSX.utils.sheet_to_html(worksheet, { header: '', footer: '' });
-                        const cleanTable = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
-                        convertedFileData = cleanTable;
-                        
-                        loader.classList.add("hidden");
-                        showToast("Excel dikonversi sukses!", "success");
-                    } catch (err) {
-                        loader.classList.add("hidden");
-                        showToast("Gagal membaca berkas Excel!", "error");
-                    }
-                };
-                reader.readAsArrayBuffer(file);
+    // 1. FORMAT EXCEL (.XLSX / .XLS)
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        reader.onload = function(evt) {
+            try {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const rawHtml = XLSX.utils.sheet_to_html(worksheet, { header: '', footer: '' });
+                convertedFileData = rawHtml.substring(rawHtml.indexOf("<table>")).replace("<table>", "<table class='excel-table'>");
+                if (loader) loader.classList.add("hidden");
+            } catch (err) {
+                if (loader) loader.classList.add("hidden");
             }
-            // 2. FORMAT WORD (.DOCX) (Dikonversi ke HTML Teks murni)
-            else if (file.name.endsWith('.docx')) {
-                reader.onload = function(evt) {
-                    mammoth.convertToHtml({ arrayBuffer: evt.target.result })
-                        .then(function(result) {
-                            convertedFileData = `<div class="p-4 prose prose-sm max-w-none text-black">${result.value}</div>`;
-                            loader.classList.add("hidden");
-                            showToast("Word sukses dikonversi ke teks!", "success");
-                        })
-                        .catch(function(err) {
-                            loader.classList.add("hidden");
-                            showToast("Format Word lama (.doc) tidak didukung, gunakan (.docx)!", "error");
-                        });
-                };
-                reader.readAsArrayBuffer(file);
-            }
-            // 3. FORMAT GAMBAR (Kompresi 50% untuk hemat JSONBin)
-            else if (file.type.startsWith('image/')) {
-                reader.onload = function(evt) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const maxDim = 700;
-                        let w = img.width, h = img.height;
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
-                            else { w = Math.round((w * maxDim) / h); h = maxDim; }
-                        }
-                        canvas.width = w; canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h);
-                        
-                        convertedFileData = `<div class="flex justify-center"><img src="${canvas.toDataURL('image/jpeg', 0.5)}" class="max-w-full rounded shadow"></div>`;
-                        
-                        loader.classList.add("hidden");
-                        showToast("Gambar dikompres!", "success");
-                    };
-                    img.src = evt.target.result;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                loader.classList.add("hidden");
-                showToast("Format file tidak didukung! Gunakan .xlsx, .docx, atau Gambar.", "error");
-                this.value = "";
-            }
-        });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    // 2. FORMAT WORD (.DOCX)
+    else if (fileName.endsWith('.docx')) {
+        reader.onload = function(evt) {
+            mammoth.convertToHtml({ arrayBuffer: evt.target.result })
+                .then(function(result) {
+                    convertedFileData = `<div class="p-4 text-black">${result.value}</div>`;
+                    if (loader) loader.classList.add("hidden");
+                })
+                .catch(function() {
+                    if (loader) loader.classList.add("hidden");
+                });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    // 3. FORMAT PDF (.PDF)
+    else if (fileName.endsWith('.pdf')) {
+        reader.onload = function(evt) {
+            convertedFileData = `<iframe src="${evt.target.result}" class="w-full h-[60vh] border-none"></iframe>`;
+            if (loader) loader.classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+    }
+    // 4. FORMAT GAMBAR
+    else if (file.type.startsWith('image/')) {
+        reader.onload = function(evt) {
+            convertedFileData = `<div class="flex justify-center"><img src="${evt.target.result}" class="max-w-full h-auto rounded shadow"></div>`;
+            if (loader) loader.classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+    }
+    // 5. FALLBACK OTOMATIS: UNTUK SEMUA FORMAT LAIN (PPTX, ZIP, RAR, TXT, DLL)
+    else {
+        reader.onload = function(evt) {
+            convertedFileData = `
+                <div class="text-center py-8 bg-zinc-100 rounded border p-4 text-black">
+                    <i class="fa-solid fa-file-zipper text-4xl mb-2 text-red-500"></i>
+                    <h4 class="font-bold text-sm">${file.name}</h4>
+                    <p class="text-xs text-gray-500 mb-3">Format ini tidak bisa di-render langsung di TV.</p>
+                    <a href="${evt.target.result}" download="${file.name}" class="inline-block bg-red-650 hover:bg-red-700 text-white font-bold text-xs px-4 py-2 rounded shadow">
+                        <i class="fa-solid fa-download mr-1"></i> Buka / Unduh Berkas
+                    </a>
+                </div>`;
+            if (loader) loader.classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
         async function handleFormSubmit(e) {
             e.preventDefault();
