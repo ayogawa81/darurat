@@ -3,398 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Monitor TV - Slog KORPASGAT</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Display Profil Online - Live Google Sheets</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
-        body {
-            background-color: #0d0d0d;
-            color: #e0e0e0;
-            font-family: 'Rajdhani', sans-serif;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .neon-text-red {
-            text-shadow: 0 0 5px #ff3333, 0 0 10px #ff3333;
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 950px;
+            padding: 40px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .photo-container {
+            flex-shrink: 0;
+            width: 260px;
+            height: 320px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid #00d2ff;
+            box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
+            background-color: #1a2a3a;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bio-container {
+            flex-grow: 1;
+        }
+
+        .bio-container h1 {
+            font-size: 2.2rem;
+            color: #00d2ff;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .bio-container .subtitle {
+            font-size: 1.1rem;
+            color: #b0bec5;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 20px;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border-left: 4px solid #00d2ff;
+        }
+
+        .info-item .label {
+            font-size: 0.85rem;
+            color: #90a4ae;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-item .value {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .status-bar {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .page-indicator, .sync-tag {
+            font-size: 0.85rem;
+            color: #00d2ff;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 16px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-card {
+                flex-direction: column;
+                padding: 25px;
+                text-align: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+
+            .photo-container {
+                width: 200px;
+                height: 240px;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body>
 
-    <header class="border-b-2 border-red-600 bg-black p-4 flex justify-between items-center shadow-lg">
-        <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-tv text-red-600 text-2xl animate-pulse"></i>
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold tracking-widest text-red-500 neon-text-red font-['Orbitron']">
-                    LIVE MONITOR TV - SLOG KORPASGAT
-                </h1>
-                <p class="text-xs text-gray-400">Sistem Penampil Dokumen Otomatis (Secure Local File Mode)</p>
-            </div>
+    <div class="profile-card" id="card">
+        <div class="photo-container">
+            <img id="foto" src="" alt="Foto Profil">
         </div>
-        <div class="text-right">
-            <span class="text-sm font-bold text-gray-300 font-['Orbitron'] block" id="liveClock">Memuat Jam...</span>
-        </div>
-    </header>
 
-    <main class="flex-grow p-4 md:p-6 max-w-8xl mx-auto w-full">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            <div class="lg:col-span-4 space-y-6">
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md">
-                    <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center border-b border-zinc-800 pb-2 font-['Orbitron']">
-                        <i class="fa-solid fa-file-pen text-xs mr-2"></i> INPUT DATA SURAT / DOKUMEN
-                    </h2>
-                    <form id="suratForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                        <input type="hidden" id="editIndex" value="-1">
-                        <input type="hidden" id="fileKeyStorage" value="">
-                        
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Jenis / No. Surat</label>
-                            <input type="text" id="noSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: No. Surat / Berkas">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Tanggal Surat</label>
-                            <input type="date" id="tanggalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500">
-                        </div>
+        <div class="bio-container">
+            <h1 id="nama">Memuat Data...</h1>
+            <div class="subtitle" id="jabatan">-</div>
 
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Nama Surat / Berkas</label>
-                            <input type="text" id="namaSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: Peminjaman Alat Bidik">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Surat Dari</label>
-                            <input type="text" id="asalSurat" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Contoh: STAFFLOG KORPASGAT">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Tentang / Perihal</label>
-                            <textarea id="perihalSurat" rows="2" required class="w-full bg-black border border-zinc-700 rounded p-2 text-xs text-gray-200 focus:outline-none focus:border-red-500" placeholder="Deskripsi singkat..."></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-red-400 mb-1"><i class="fa-solid fa-file-arrow-up mr-1"></i> Unggah Berkas (Excel/Word/PDF/Gambar)</label>
-                            <input type="file" id="localFileInput" class="w-full bg-zinc-800 border border-zinc-700 rounded p-1.5 text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer" onchange="processFile()">
-                        </div>
-
-                        <div class="flex space-x-2 pt-2">
-                            <button type="submit" id="submitBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200">
-                                <i class="fa-solid fa-paper-plane mr-1"></i> TAYANGKAN DI TV
-                            </button>
-                            <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded text-xs font-bold transition duration-200">
-                                Batal
-                            </button>
-                        </div>
-                    </form>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">NIP / ID</span>
+                    <span class="value" id="nip">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Unit Kerja</span>
+                    <span class="value" id="unit">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Tempat, Tgl Lahir</span>
+                    <span class="value" id="ttl">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Pendidikan</span>
+                    <span class="value" id="pendidikan">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Status</span>
+                    <span class="value" id="status">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Kontak / Ext</span>
+                    <span class="value" id="kontak">-</span>
                 </div>
             </div>
-
-            <div class="lg:col-span-8">
-                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 shadow-md h-full flex flex-col justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-red-500 mb-4 flex items-center justify-between border-b border-zinc-800 pb-2 font-['Orbitron']">
-                            <span><i class="fa-solid fa-list-check text-xs mr-2"></i> DAFTAR SURAT MASUK / KELUAR</span>
-                            <span class="text-xs bg-red-950 text-red-400 border border-red-900 px-2 py-0.5 rounded" id="totalSurat">0 Surat</span>
-                        </h2>
-                        
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="border-b border-zinc-800 text-gray-400">
-                                        <th class="py-3 px-2 font-semibold">No. Surat</th>
-                                        <th class="py-3 px-2 font-semibold">Tanggal</th>
-                                        <th class="py-3 px-2 font-semibold">Nama Surat</th>
-                                        <th class="py-3 px-2 font-semibold">Dari</th>
-                                        <th class="py-3 px-2 text-center font-semibold">Aksi Berkas</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="suratTableBody" class="divide-y divide-zinc-800">
-                                    <tr>
-                                        <td colspan="5" class="py-8 text-center text-zinc-500">Belum ada data surat.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 font-['Orbitron']">
-                        STAFLOG KORPASGAT &copy; 2026
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <div id="viewerModal" class="fixed inset-0 bg-black bg-opacity-95 hidden z-50 flex flex-col items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-6xl h-[92vh] rounded-lg flex flex-col overflow-hidden shadow-2xl">
-            <div class="bg-black border-b border-zinc-800 p-4 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-file-invoice text-red-500"></i>
-                    <h3 class="text-xs font-bold text-white font-['Orbitron']" id="modalSuratTitle">PREVIEW DOKUMEN</h3>
-                </div>
-                <button onclick="closeModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-1.5 rounded text-xs transition duration-200">
-                    TUTUP X
-                </button>
-            </div>
-            <div class="flex-grow bg-white" id="modalBody"></div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 font-bold transition-all duration-300">
-        <span id="toastMessage"></span>
+    <div class="status-bar">
+        <div class="page-indicator" id="indicator">Profil 0 dari 0</div>
+        <div class="sync-tag" id="sync-status">Live Sync: Google Sheets</div>
     </div>
+
+    <!-- Library PapaParse untuk membaca CSV Google Sheets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
-        const BIN_ID = "6a559ab1f5f4af5e298b6717";
-        const MASTER_KEY = "$2a$10$hM6Nl/LpLYBsi5RYUkb.W.5LpOGi2/RmT.n0J9WUooMtYv";
+        // =========================================================================
+        // TEMPELKAN LINK 'PUBLISH TO WEB' GOOGLE SHEETS (FORMAT CSV) DI BAWAH INI:
+        // =========================================================================
+        const googleSheetsCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRukrMmGr9ZwNsWEaSSAvpwCTzeElAuTfl9-ED0IyrT4fhu-FSo8zbuWE8NWig6hnKF7GPU3LJW5v3a/pub?gid=0&single=true&output=csv";
 
-        let database = [];
-        let tempFileBase64 = "";
-        let tempFileName = "";
-        let tempFileMime = "";
+        const durasiSlide = 7000; // 7 detik per slide
+        let daftarProfil = [];
+        let currentIndex = 0;
+        let slideTimer = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
-            startClock();
-            loadDatabase();
-        });
-
-        function startClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById("liveClock").innerText = now.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'medium' });
-            }, 1000);
+        // Fungsi membaca data dari Google Sheets
+        function loadOnlineData() {
+            Papa.parse(googleSheetsCsvUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        daftarProfil = results.data;
+                        document.getElementById('sync-status').innerText = `Terhubung (Diupdate: ${new Date().toLocaleTimeString()})`;
+                        
+                        if (!slideTimer) {
+                            updateProfile(currentIndex);
+                            startSlideshow();
+                        }
+                    }
+                },
+                error: function(err) {
+                    console.error("Gagal mengambil data online:", err);
+                    document.getElementById('sync-status').innerText = "Gagal Sync Online";
+                }
+            });
         }
 
-        function processFile() {
-            const file = document.getElementById("localFileInput").files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempFileBase64 = e.target.result;
-                    tempFileName = file.name;
-                    tempFileMime = file.type || "application/octet-stream";
-                };
-                reader.readAsDataURL(file);
-            }
+        function updateProfile(index) {
+            if (daftarProfil.length === 0) return;
+            const data = daftarProfil[index];
+            const card = document.getElementById('card');
+
+            card.classList.add('fade-out');
+
+            setTimeout(() => {
+                document.getElementById('foto').src = data.foto || 'https://via.placeholder.com/260x320?text=No+Photo';
+                document.getElementById('nama').innerText = data.nama || '-';
+                document.getElementById('jabatan').innerText = data.jabatan || '-';
+                document.getElementById('nip').innerText = data.nip || '-';
+                document.getElementById('unit').innerText = data.unit || '-';
+                document.getElementById('ttl').innerText = data.ttl || '-';
+                document.getElementById('pendidikan').innerText = data.pendidikan || '-';
+                document.getElementById('status').innerText = data.status || '-';
+                document.getElementById('kontak').innerText = data.kontak || '-';
+
+                document.getElementById('indicator').innerText = `Profil ${index + 1} dari ${daftarProfil.length}`;
+                card.classList.remove('fade-out');
+            }, 500);
         }
 
-        async function loadDatabase() {
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { "X-Master-Key": MASTER_KEY }
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                database = Array.isArray(data.record) ? data.record : [];
-                renderTable();
-            } catch (err) {
-                showToast("Gagal memuat data pangkalan data!", "error");
-            }
+        function startSlideshow() {
+            slideTimer = setInterval(() => {
+                if (daftarProfil.length > 0) {
+                    currentIndex = (currentIndex + 1) % daftarProfil.length;
+                    updateProfile(currentIndex);
+                }
+            }, durasiSlide);
         }
 
-        async function saveDatabaseToCloud() {
-            // BERSIHKAN UKURAN DATA: Sebelum dikirim ke cloud, buang muatan base64 agar file tidak hancur
-            const cloudCleanDatabase = database.map(item => ({
-                noSurat: item.noSurat,
-                tanggal: item.tanggal,
-                namaSurat: item.namaSurat,
-                dari: item.dari,
-                tentang: item.tentang,
-                fileStorageKey: item.fileStorageKey, // Hanya ID referensi teks (Kecil & Ringan)
-                fileNameReal: item.fileNameReal,
-                mimeType: item.mimeType
-            }));
+        // Ambil data pertama kali
+        loadOnlineData();
 
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}?versioning=false`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": MASTER_KEY
-                    },
-                    body: JSON.stringify(cloudCleanDatabase)
-                });
-                if (!res.ok) throw new Error();
-                showToast("Data Berhasil Diperbarui!", "success");
-                renderTable();
-            } catch (err) {
-                showToast("Gagal sinkronisasi ke Cloud!", "error");
-            }
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const index = parseInt(document.getElementById("editIndex").value);
-            let finalKey = document.getElementById("fileKeyStorage").value || "local_file_" + Date.now();
-            let nameOfFile = tempFileName || "Berkas Dokumen";
-            let mimeTypeFile = tempFileMime;
-
-            // Jika ada file baru yang dimasukkan, simpan HANYA di memori internal komputer lokal
-            if (tempFileBase64 !== "") {
-                localStorage.setItem(finalKey, tempFileBase64);
-            } else if (index === -1) {
-                showToast("Harap pilih file lokal terlebih dahulu!", "error");
-                return;
-            } else {
-                finalKey = database[index].fileStorageKey;
-                nameOfFile = database[index].fileNameReal;
-                mimeTypeFile = database[index].mimeType;
-            }
-
-            const suratBaru = {
-                noSurat: document.getElementById("noSurat").value.trim(),
-                tanggal: document.getElementById("tanggalSurat").value,
-                namaSurat: document.getElementById("namaSurat").value.trim(),
-                dari: document.getElementById("asalSurat").value.trim(),
-                tentang: document.getElementById("perihalSurat").value.trim(),
-                fileStorageKey: finalKey,
-                fileNameReal: nameOfFile,
-                mimeType: mimeTypeFile
-            };
-
-            if (index === -1) {
-                database.push(suratBaru);
-            } else {
-                database[index] = suratBaru;
-            }
-
-            resetForm();
-            await saveDatabaseToCloud();
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById("suratTableBody");
-            document.getElementById("totalSurat").innerText = `${database.length} Surat`;
-            
-            database = database.filter(item => item && item.noSurat);
-
-            if (database.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500">Belum ada data surat.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = database.map((surat, index) => {
-                return `
-                    <tr class="hover:bg-zinc-800 border-b border-zinc-800 text-gray-200">
-                        <td class="py-3 px-2 font-bold text-red-400">${surat.noSurat}</td>
-                        <td class="py-3 px-2 text-gray-400">${surat.tanggal}</td>
-                        <td class="py-3 px-2">${surat.namaSurat}</td>
-                        <td class="py-3 px-2 text-zinc-400 font-semibold">${surat.dari || "-"}</td>
-                        <td class="py-3 px-2 text-center flex items-center justify-center space-x-2">
-                            <button onclick="viewDocument(${index})" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded transition duration-200">
-                                <i class="fa-solid fa-eye mr-1"></i> LIHAT
-                            </button>
-                            <button onclick="editDocument(${index})" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded transition duration-200">
-                                <i class="fa-solid fa-edit"></i>
-                            </button>
-                            <button onclick="deleteDocument(${index})" class="bg-black hover:bg-zinc-950 text-red-500 text-xs font-bold px-3 py-1.5 rounded border border-zinc-800 transition duration-200">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function viewDocument(index) {
-            const surat = database[index];
-            if (!surat) return;
-
-            document.getElementById("modalSuratTitle").innerText = `VIEWER MONITOR TV: ${surat.namaSurat.toUpperCase()}`;
-            const body = document.getElementById("modalBody");
-            
-            // Ambil file fisik langsung dari memori lokal laptop ini
-            const base64Content = localStorage.getItem(surat.fileStorageKey);
-            if (!base64Content) {
-                body.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
-                        <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-5xl mb-4"></i>
-                        <h4 class="text-md font-bold mb-1">File Lokal Tidak Ditemukan di Perangkat Ini</h4>
-                        <p class="text-xs text-gray-400 max-w-sm">Pastikan Anda menginput berkas fisik dari laptop/komputer monitor yang sama agar data lokalnya terbaca.</p>
-                    </div>`;
-                document.getElementById("viewerModal").classList.remove("hidden");
-                return;
-            }
-
-            const isImage = base64Content.startsWith("data:image/") || (surat.mimeType && surat.mimeType.startsWith("image/"));
-            const isPdf = base64Content.startsWith("data:application/pdf") || (surat.mimeType && surat.mimeType.includes("pdf"));
-
-            if (isImage) {
-                body.innerHTML = `<div class="w-full h-full flex justify-center items-center bg-zinc-950 p-4"><img src="${base64Content}" class="max-w-full max-h-full object-contain rounded" /></div>`;
-            } else if (isPdf) {
-                body.innerHTML = `<iframe src="${base64Content}" class="w-full h-full border-none"></iframe>`;
-            } else {
-                body.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-center h-full bg-zinc-950 text-white p-8">
-                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md shadow-2xl">
-                            <i class="fa-solid fa-file-excel text-green-500 text-6xl mb-4"></i>
-                            <h4 class="text-lg font-bold mb-2 text-gray-200">${surat.fileNameReal || 'Dokumen Office'}</h4>
-                            <p class="text-xs text-gray-400 mb-6">Berkas Word/Excel lokal terdeteksi aman.</p>
-                            <a href="${base64Content}" download="${surat.fileNameReal || 'dokumen'}" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition duration-200">
-                                <i class="fa-solid fa-download mr-1"></i> BUKA / DOWNLOAD BERKAS
-                            </a>
-                        </div>
-                    </div>`;
-            }
-            document.getElementById("viewerModal").classList.remove("hidden");
-        }
-
-        function closeModal() {
-            document.getElementById("viewerModal").classList.add("hidden");
-            document.getElementById("modalBody").innerHTML = ""; 
-        }
-
-        function editDocument(index) {
-            const surat = database[index];
-            if (!surat) return;
-
-            document.getElementById("editIndex").value = index;
-            document.getElementById("noSurat").value = surat.noSurat;
-            document.getElementById("tanggalSurat").value = surat.tanggal;
-            document.getElementById("namaSurat").value = surat.namaSurat;
-            document.getElementById("asalSurat").value = surat.dari;
-            document.getElementById("perihalSurat").value = surat.tentang;
-            document.getElementById("fileKeyStorage").value = surat.fileStorageKey;
-
-            tempFileBase64 = localStorage.getItem(surat.fileStorageKey) || "";
-            tempFileName = surat.fileNameReal || "";
-            tempFileMime = surat.mimeType || "";
-
-            document.getElementById("submitBtn").className = "flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-xs font-bold transition duration-200";
-            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-edit mr-1"></i> UPDATE DATA`;
-            document.getElementById("cancelEditBtn").classList.remove("hidden");
-        }
-
-        async function deleteDocument(index) {
-            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-                const surat = database[index];
-                if(surat) localStorage.removeItem(surat.fileStorageKey);
-                database.splice(index, 1);
-                await saveDatabaseToCloud();
-            }
-        }
-
-        function resetForm() {
-            document.getElementById("suratForm").reset();
-            document.getElementById("editIndex").value = "-1";
-            document.getElementById("fileKeyStorage").value = "";
-            tempFileBase64 = "";
-            tempFileName = "";
-            tempFileMime = "";
-            document.getElementById("submitBtn").className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded text-xs font-bold transition duration-200";
-            document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> TAYANGKAN DI TV`;
-            document.getElementById("cancelEditBtn").classList.add("hidden");
-        }
-
-        function showToast(msg, type = "info") {
-            const toast = document.getElementById("toast");
-            document.getElementById("toastMessage").innerText = msg;
-            toast.className = "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 block";
-            if (type === "success") toast.classList.add("bg-green-600");
-            else if (type === "error") toast.classList.add("bg-red-600");
-            else toast.classList.add("bg-blue-600");
-            setTimeout(() => { toast.classList.add("hidden"); }, 4000);
-        }
+        // Cek & Sinkronkan data baru dari Google Sheets secara otomatis setiap 1 menit (60000 ms)
+        setInterval(loadOnlineData, 60000);
     </script>
 </body>
 </html>
