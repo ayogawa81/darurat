@@ -13,50 +13,56 @@
             user-select: none;
         }
 
-        /* Memastikan Body Mengisi 100% Layar TV & PC */
         html, body {
             width: 100vw;
             height: 100vh;
-            overflow: hidden; /* Menghilangkan Scrollbar */
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            overflow: hidden;
+            background: linear-gradient(135deg, #0b171e, #132730, #1a3644);
             color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
 
+        /* Container Utama Memenuhi 100% Layar */
+        .full-container {
+            width: 100vw;
+            height: 100vh;
+            padding: 30px 40px 20px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* KARTU PROFIL MEMENUHI KELUASAN LAYAR */
         .profile-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 20px;
-            width: 88vw;
-            max-width: 1100px;
-            height: auto;
-            max-height: 80vh;
-            padding: 3vw;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 210, 255, 0.3);
+            border-radius: 24px;
+            width: 100%;
+            height: calc(100vh - 100px); /* Mengisi hampir seluruh tinggi layar */
+            padding: 40px;
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 3vw;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            gap: 50px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
         }
 
         .fade-out {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: scale(0.98);
         }
 
+        /* FOTO DIPERBESAR TINGGIPENUH */
         .photo-container {
             flex-shrink: 0;
-            width: 280px;
-            height: 350px;
-            border-radius: 16px;
+            width: 32%;
+            max-width: 420px;
+            height: 100%;
+            border-radius: 20px;
             overflow: hidden;
-            border: 3px solid #00d2ff;
-            box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
+            border: 4px solid #00d2ff;
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.4);
             background-color: #1a2a3a;
         }
 
@@ -68,128 +74,133 @@
 
         .bio-container {
             flex-grow: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
+        /* NAMA DAN JABATAN EXTRA BESAR */
         .bio-container h1 {
-            font-size: 2.2rem;
+            font-size: 3.2rem;
             color: #00d2ff;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            line-height: 1.1;
+            text-transform: uppercase;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         .bio-container .subtitle {
-            font-size: 1.15rem;
+            font-size: 1.6rem;
             color: #b0bec5;
-            margin-bottom: 25px;
+            margin-bottom: 35px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 500;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px 20px;
-        }
-
-        .info-item {
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px 18px;
-            border-radius: 10px;
-            border-left: 4px solid #00d2ff;
-        }
-
-        .info-item .label {
-            font-size: 0.85rem;
-            color: #90a4ae;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .info-item .value {
-            font-size: 1.1rem;
+            letter-spacing: 3px;
             font-weight: 600;
         }
 
+        /* GRID INFORMASI MEMENUHI AREA */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 25px;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 20px 24px;
+            border-radius: 14px;
+            border-left: 6px solid #00d2ff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-item .label {
+            font-size: 1.05rem;
+            color: #90a4ae;
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* STATUS BAR DI BAGIAN BAWAH LAYAR */
         .status-bar {
-            margin-top: 25px;
+            height: 40px;
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
             align-items: center;
+            padding: 0 10px;
         }
 
         .page-indicator, .sync-tag {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #00d2ff;
-            background: rgba(0, 0, 0, 0.35);
-            padding: 6px 18px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 22px;
             border-radius: 20px;
             letter-spacing: 1px;
-            border: 1px solid rgba(0, 210, 255, 0.2);
+            border: 1px solid rgba(0, 210, 255, 0.25);
         }
 
-        /* Penyesuaian Responsif untuk Layar HP / TV Beresolusi Kecil */
-        @media (max-width: 850px) {
-            .profile-card {
-                flex-direction: column;
-                padding: 20px;
-                text-align: center;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-                text-align: left;
-            }
-
-            .photo-container {
-                width: 200px;
-                height: 250px;
-            }
+        /* PENYESUAIAN PADA TV BERESOLUSI LEBIH KECIL */
+        @media (max-height: 700px) {
+            .bio-container h1 { font-size: 2.4rem; }
+            .bio-container .subtitle { font-size: 1.2rem; margin-bottom: 20px; }
+            .info-item { padding: 12px 18px; }
+            .info-item .value { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body onclick="toggleFullscreen()">
 
-    <div class="profile-card" id="card">
-        <div class="photo-container">
-            <img id="foto" src="" alt="Foto Profil">
-        </div>
+    <div class="full-container">
+        <!-- KARTU UTAMA FULL LAYAR -->
+        <div class="profile-card" id="card">
+            <div class="photo-container">
+                <img id="foto" src="" alt="Foto Profil">
+            </div>
 
-        <div class="bio-container">
-            <h1 id="nama">Memuat Data...</h1>
-            <div class="subtitle" id="jabatan">-</div>
+            <div class="bio-container">
+                <h1 id="nama">Memuat Data...</h1>
+                <div class="subtitle" id="jabatan">-</div>
 
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="label">Pangkat</span>
-                    <span class="value" id="pangkat">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">NRP</span>
-                    <span class="value" id="nrp">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Tempat Lahir</span>
-                    <span class="value" id="tempat_lahir">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Tanggal Lahir</span>
-                    <span class="value" id="tanggal_lahir">-</span>
-                </div>
-                <div class="info-item" style="grid-column: span 2;">
-                    <span class="label">Kontak / HP</span>
-                    <span class="value" id="kontak">-</span>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Pangkat</span>
+                        <span class="value" id="pangkat">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">NRP</span>
+                        <span class="value" id="nrp">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Tempat Lahir</span>
+                        <span class="value" id="tempat_lahir">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Tanggal Lahir</span>
+                        <span class="value" id="tanggal_lahir">-</span>
+                    </div>
+                    <div class="info-item" style="grid-column: span 2;">
+                        <span class="label">Kontak / HP</span>
+                        <span class="value" id="kontak">-</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="status-bar">
-        <div class="page-indicator" id="indicator">Profil 0 dari 0</div>
-        <div class="sync-tag" id="sync-status">Live Sync: Google Sheets</div>
+        <!-- STATUS BAR BAWAH -->
+        <div class="status-bar">
+            <div class="page-indicator" id="indicator">Profil 0 dari 0</div>
+            <div class="sync-tag" id="sync-status">Live Sync: Google Sheets</div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -202,17 +213,14 @@
         let currentIndex = 0;
         let slideTimer = null;
 
-        // Mode Fullscreen Otomatis saat Klik / Sentuh Layar
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Gagal masuk mode fullscreen: ${err.message}`);
-                });
+                document.documentElement.requestFullscreen().catch(err => {});
             }
         }
 
         function convertDriveUrl(url) {
-            if (!url) return 'https://via.placeholder.com/280x350?text=No+Photo';
+            if (!url) return 'https://via.placeholder.com/420x550?text=No+Photo';
             if (url.includes('drive.google.com')) {
                 const matches = url.match(/\/d\/([^\/\?]+)/);
                 if (matches && matches[1]) {
@@ -239,7 +247,6 @@
                     }
                 },
                 error: function(err) {
-                    console.error("Gagal mengambil data online:", err);
                     document.getElementById('sync-status').innerText = "Gagal Sync Online";
                 }
             });
