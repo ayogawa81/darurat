@@ -226,4 +226,64 @@
             Papa.parse(googleSheetsCsvUrl, {
                 download: true,
                 header: true,
-                skipEmptyLines: true
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        daftarProfil = results.data;
+                        document.getElementById('sync-status').innerText = `Terhubung (${new Date().toLocaleTimeString()})`;
+                        
+                        if (!slideTimer) {
+                            updateProfile(currentIndex);
+                            startSlideshow();
+                        }
+                    }
+                },
+                error: function(err) {
+                    console.error("Gagal mengambil data online:", err);
+                    document.getElementById('sync-status').innerText = "Gagal Sync Online";
+                }
+            });
+        }
+
+        function updateProfile(index) {
+            if (daftarProfil.length === 0) return;
+            const rawData = daftarProfil[index];
+            const card = document.getElementById('card');
+
+            const data = {};
+            Object.keys(rawData).forEach(key => {
+                const cleanKey = key.trim().toLowerCase();
+                data[cleanKey] = rawData[key];
+            });
+
+            card.classList.add('fade-out');
+
+            setTimeout(() => {
+                document.getElementById('foto').src = convertDriveUrl(data['foto']);
+                document.getElementById('nama').innerText = data['nama'] || '-';
+                document.getElementById('jabatan').innerText = data['jabatan'] || '-';
+                document.getElementById('pangkat').innerText = data['pangkat'] || '-';
+                document.getElementById('nrp').innerText = data['nrp'] || '-';
+                document.getElementById('tempat_lahir').innerText = data['tempat lahir'] || '-';
+                document.getElementById('tanggal_lahir').innerText = data['tanggal lahir'] || '-';
+                document.getElementById('kontak').innerText = data['kontak'] || '-';
+
+                document.getElementById('indicator').innerText = `Profil ${index + 1} dari ${daftarProfil.length}`;
+                card.classList.remove('fade-out');
+            }, 500);
+        }
+
+        function startSlideshow() {
+            slideTimer = setInterval(() => {
+                if (daftarProfil.length > 0) {
+                    currentIndex = (currentIndex + 1) % daftarProfil.length;
+                    updateProfile(currentIndex);
+                }
+            }, durasiSlide);
+        }
+
+        loadOnlineData();
+        setInterval(loadOnlineData, 60000);
+    </script>
+</body>
+</html>
