@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Display Profil Pers Slog Korpasgat</title>
     <style>
         * {
@@ -10,17 +10,20 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
 
-        body {
+        /* Memastikan Body Mengisi 100% Layar TV & PC */
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* Menghilangkan Scrollbar */
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             color: #ffffff;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
         .profile-card {
@@ -28,14 +31,16 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 20px;
-            width: 90%;
-            max-width: 950px;
-            padding: 40px;
+            width: 88vw;
+            max-width: 1100px;
+            height: auto;
+            max-height: 80vh;
+            padding: 3vw;
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 40px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            gap: 3vw;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
         }
 
@@ -46,8 +51,8 @@
 
         .photo-container {
             flex-shrink: 0;
-            width: 260px;
-            height: 320px;
+            width: 280px;
+            height: 350px;
             border-radius: 16px;
             overflow: hidden;
             border: 3px solid #00d2ff;
@@ -66,18 +71,20 @@
         }
 
         .bio-container h1 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #00d2ff;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
         .bio-container .subtitle {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #b0bec5;
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-weight: 500;
         }
 
         .info-grid {
@@ -87,8 +94,8 @@
         }
 
         .info-item {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 18px;
             border-radius: 10px;
             border-left: 4px solid #00d2ff;
         }
@@ -101,12 +108,12 @@
         }
 
         .info-item .value {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 600;
         }
 
         .status-bar {
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
             gap: 15px;
             align-items: center;
@@ -115,17 +122,21 @@
         .page-indicator, .sync-tag {
             font-size: 0.85rem;
             color: #00d2ff;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px 16px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 6px 18px;
             border-radius: 20px;
             letter-spacing: 1px;
+            border: 1px solid rgba(0, 210, 255, 0.2);
         }
 
-        @media (max-width: 768px) {
+        /* Penyesuaian Responsif untuk Layar HP / TV Beresolusi Kecil */
+        @media (max-width: 850px) {
             .profile-card {
                 flex-direction: column;
-                padding: 25px;
+                padding: 20px;
                 text-align: center;
+                max-height: 90vh;
+                overflow-y: auto;
             }
 
             .info-grid {
@@ -135,12 +146,12 @@
 
             .photo-container {
                 width: 200px;
-                height: 240px;
+                height: 250px;
             }
         }
     </style>
 </head>
-<body>
+<body onclick="toggleFullscreen()">
 
     <div class="profile-card" id="card">
         <div class="photo-container">
@@ -181,7 +192,6 @@
         <div class="sync-tag" id="sync-status">Live Sync: Google Sheets</div>
     </div>
 
-    <!-- Library PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
@@ -192,9 +202,17 @@
         let currentIndex = 0;
         let slideTimer = null;
 
-        // Fungsi mengubah URL Google Drive ke direct image URL
+        // Mode Fullscreen Otomatis saat Klik / Sentuh Layar
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Gagal masuk mode fullscreen: ${err.message}`);
+                });
+            }
+        }
+
         function convertDriveUrl(url) {
-            if (!url) return 'https://via.placeholder.com/260x320?text=No+Photo';
+            if (!url) return 'https://via.placeholder.com/280x350?text=No+Photo';
             if (url.includes('drive.google.com')) {
                 const matches = url.match(/\/d\/([^\/\?]+)/);
                 if (matches && matches[1]) {
@@ -208,65 +226,4 @@
             Papa.parse(googleSheetsCsvUrl, {
                 download: true,
                 header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        daftarProfil = results.data;
-                        document.getElementById('sync-status').innerText = `Terhubung (${new Date().toLocaleTimeString()})`;
-                        
-                        if (!slideTimer) {
-                            updateProfile(currentIndex);
-                            startSlideshow();
-                        }
-                    }
-                },
-                error: function(err) {
-                    console.error("Gagal mengambil data online:", err);
-                    document.getElementById('sync-status').innerText = "Gagal Sync Online";
-                }
-            });
-        }
-
-        function updateProfile(index) {
-            if (daftarProfil.length === 0) return;
-            const rawData = daftarProfil[index];
-            const card = document.getElementById('card');
-
-            // Normalisasi kunci header agar sesuai persis dengan kolom Google Sheets
-            const data = {};
-            Object.keys(rawData).forEach(key => {
-                const cleanKey = key.trim().toLowerCase();
-                data[cleanKey] = rawData[key];
-            });
-
-            card.classList.add('fade-out');
-
-            setTimeout(() => {
-                document.getElementById('foto').src = convertDriveUrl(data['foto']);
-                document.getElementById('nama').innerText = data['nama'] || '-';
-                document.getElementById('jabatan').innerText = data['jabatan'] || '-';
-                document.getElementById('pangkat').innerText = data['pangkat'] || '-';
-                document.getElementById('nrp').innerText = data['nrp'] || '-';
-                document.getElementById('tempat_lahir').innerText = data['tempat lahir'] || '-';
-                document.getElementById('tanggal_lahir').innerText = data['tanggal lahir'] || '-';
-                document.getElementById('kontak').innerText = data['kontak'] || '-';
-
-                document.getElementById('indicator').innerText = `Profil ${index + 1} dari ${daftarProfil.length}`;
-                card.classList.remove('fade-out');
-            }, 500);
-        }
-
-        function startSlideshow() {
-            slideTimer = setInterval(() => {
-                if (daftarProfil.length > 0) {
-                    currentIndex = (currentIndex + 1) % daftarProfil.length;
-                    updateProfile(currentIndex);
-                }
-            }, durasiSlide);
-        }
-
-        loadOnlineData();
-        setInterval(loadOnlineData, 60000);
-    </script>
-</body>
-</html>
+                skipEmptyLines: true
