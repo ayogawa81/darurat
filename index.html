@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Profil Online - Live Google Sheets</title>
+    <title>Display Profil Pers Slog Korpasgat</title>
     <style>
         * {
             box-sizing: border-box;
@@ -66,7 +66,7 @@
         }
 
         .bio-container h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: #00d2ff;
             margin-bottom: 5px;
             letter-spacing: 1px;
@@ -153,27 +153,23 @@
 
             <div class="info-grid">
                 <div class="info-item">
-                    <span class="label">NIP / ID</span>
-                    <span class="value" id="nip">-</span>
+                    <span class="label">Pangkat</span>
+                    <span class="value" id="pangkat">-</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">Unit Kerja</span>
-                    <span class="value" id="unit">-</span>
+                    <span class="label">NRP</span>
+                    <span class="value" id="nrp">-</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">Tempat, Tgl Lahir</span>
-                    <span class="value" id="ttl">-</span>
+                    <span class="label">Tempat Lahir</span>
+                    <span class="value" id="tempat_lahir">-</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">Pendidikan</span>
-                    <span class="value" id="pendidikan">-</span>
+                    <span class="label">Tanggal Lahir</span>
+                    <span class="value" id="tanggal_lahir">-</span>
                 </div>
-                <div class="info-item">
-                    <span class="label">Status</span>
-                    <span class="value" id="status">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Kontak / Ext</span>
+                <div class="info-item" style="grid-column: span 2;">
+                    <span class="label">Kontak / HP</span>
                     <span class="value" id="kontak">-</span>
                 </div>
             </div>
@@ -185,21 +181,29 @@
         <div class="sync-tag" id="sync-status">Live Sync: Google Sheets</div>
     </div>
 
-    <!-- Library PapaParse untuk membaca CSV Google Sheets -->
+    <!-- Library PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
-        // =========================================================================
-        // TEMPELKAN LINK 'PUBLISH TO WEB' GOOGLE SHEETS (FORMAT CSV) DI BAWAH INI:
-        // =========================================================================
         const googleSheetsCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRukrMmGr9ZwNsWEaSSAvpwCTzeElAuTfl9-ED0IyrT4fhu-FSo8zbuWE8NWig6hnKF7GPU3LJW5v3a/pub?gid=0&single=true&output=csv";
 
-        const durasiSlide = 7000; // 7 detik per slide
+        const durasiSlide = 7000;
         let daftarProfil = [];
         let currentIndex = 0;
         let slideTimer = null;
 
-        // Fungsi membaca data dari Google Sheets
+        // Fungsi mengubah URL Google Drive ke direct image URL
+        function convertDriveUrl(url) {
+            if (!url) return 'https://via.placeholder.com/260x320?text=No+Photo';
+            if (url.includes('drive.google.com')) {
+                const matches = url.match(/\/d\/([^\/\?]+)/);
+                if (matches && matches[1]) {
+                    return `https://lh3.googleusercontent.com/d/${matches[1]}`;
+                }
+            }
+            return url;
+        }
+
         function loadOnlineData() {
             Papa.parse(googleSheetsCsvUrl, {
                 download: true,
@@ -208,7 +212,7 @@
                 complete: function(results) {
                     if (results.data && results.data.length > 0) {
                         daftarProfil = results.data;
-                        document.getElementById('sync-status').innerText = `Terhubung (Diupdate: ${new Date().toLocaleTimeString()})`;
+                        document.getElementById('sync-status').innerText = `Terhubung (${new Date().toLocaleTimeString()})`;
                         
                         if (!slideTimer) {
                             updateProfile(currentIndex);
@@ -225,21 +229,27 @@
 
         function updateProfile(index) {
             if (daftarProfil.length === 0) return;
-            const data = daftarProfil[index];
+            const rawData = daftarProfil[index];
             const card = document.getElementById('card');
+
+            // Normalisasi kunci header agar sesuai persis dengan kolom Google Sheets
+            const data = {};
+            Object.keys(rawData).forEach(key => {
+                const cleanKey = key.trim().toLowerCase();
+                data[cleanKey] = rawData[key];
+            });
 
             card.classList.add('fade-out');
 
             setTimeout(() => {
-                document.getElementById('foto').src = data.foto || 'https://via.placeholder.com/260x320?text=No+Photo';
-                document.getElementById('nama').innerText = data.nama || '-';
-                document.getElementById('jabatan').innerText = data.jabatan || '-';
-                document.getElementById('nip').innerText = data.nip || '-';
-                document.getElementById('unit').innerText = data.unit || '-';
-                document.getElementById('ttl').innerText = data.ttl || '-';
-                document.getElementById('pendidikan').innerText = data.pendidikan || '-';
-                document.getElementById('status').innerText = data.status || '-';
-                document.getElementById('kontak').innerText = data.kontak || '-';
+                document.getElementById('foto').src = convertDriveUrl(data['foto']);
+                document.getElementById('nama').innerText = data['nama'] || '-';
+                document.getElementById('jabatan').innerText = data['jabatan'] || '-';
+                document.getElementById('pangkat').innerText = data['pangkat'] || '-';
+                document.getElementById('nrp').innerText = data['nrp'] || '-';
+                document.getElementById('tempat_lahir').innerText = data['tempat lahir'] || '-';
+                document.getElementById('tanggal_lahir').innerText = data['tanggal lahir'] || '-';
+                document.getElementById('kontak').innerText = data['kontak'] || '-';
 
                 document.getElementById('indicator').innerText = `Profil ${index + 1} dari ${daftarProfil.length}`;
                 card.classList.remove('fade-out');
@@ -255,10 +265,7 @@
             }, durasiSlide);
         }
 
-        // Ambil data pertama kali
         loadOnlineData();
-
-        // Cek & Sinkronkan data baru dari Google Sheets secara otomatis setiap 1 menit (60000 ms)
         setInterval(loadOnlineData, 60000);
     </script>
 </body>
